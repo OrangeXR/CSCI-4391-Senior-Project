@@ -1,0 +1,22 @@
+{% extends 'HomePageSetup.html' %}
+
+{% block head %}
+<title>Binny and Bloom.com</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/homestyle.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="welcome1">
+    <h1>Binny and Bloom.com</h1>
+</div>
+
+<div class="body">
+    <div class="images">
+        <img src="{{ url_for('static', filename='Pictures/Binny.png') }}" alt="bot" class="binnybot">
+    </div>
+    <ul>
+      <li><a href="/inventory" class="text">Check Inventory</a></li>
+      <li><a href="/inventory" class="text">Add to Inventory</a></li>
+    </ul>
+</div>
+{% endblock %}

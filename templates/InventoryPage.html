@@ -1,0 +1,26 @@
+{% extends 'InventoryPageSetup.html' %}
+
+{% block head %}
+<title>Food Inventory</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/homestyle.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="welcome1">
+    <h1>Food Inventory</h1>
+</div>
+
+<div class="body">
+    <a href="/add" class="text">Add New Item</a>
+</div>
+
+<div class="body">
+    <ul>
+        {% for item in items %}
+        <li>
+            {{ item.name }} — {{ item.quantity }} — Best by: {{ item.best_by }}
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

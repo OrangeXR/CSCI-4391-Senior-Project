@@ -1,0 +1,25 @@
+{% extends 'AddItemPageSetup.html' %}
+
+{% block head %}
+<title>Add Item</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/homestyle.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="welcome1">
+    <h1>Add Item</h1>
+</div>
+
+<form method="POST" class="body">
+    <label for="name">Name</label>
+    <input name="name" placeholder="Item Name" required>
+    <label for="category">Category</label>
+    <input name="category" placeholder="Item Category" required>
+    <label for="quantity">Quantity</label>
+    <input name="quantity" type="number" placeholder="Item Quantity" required>
+    <label for="best_by">Best By</label>
+    <input name="best_by" type="date" placeholder="Best by" required>
+
+    <button type="submit" class="text">Add</button>
+</form>
+{% endblock %}

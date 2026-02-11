@@ -1,0 +1,97 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ==========================
+   Main Body picture
+========================== */
+
+.images {
+    display: flex;
+    justify-content: center;
+    gap: 55px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    animation:
+      bounce 300ms
+      alternate infinite
+      cubic-bezier(.2, .65, .6, 1),
+      typing 3.5s steps(23, end);
+     
+}
+
+
+
+
+/* ==========================
+   Welcome Section
+========================== */
+.welcome1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.welcome1 h1 {
+    display: inline-block;                 
+    font-size: clamp(40px, 10vw, 100px);   
+    color: #4e8e00; /* medium gray text */
+    font-family: 'Andale Mono', 'Courier New', monospace;
+    overflow: hidden;                       
+    
+
+    white-space: nowrap;                    
+    margin: 5px ;
+    letter-spacing: 0.05em;
+    animation: 
+    typing 3.5s steps(23, end),blink-caret 1s step-end infinite;  
+
+   
+}
+   
+
+   
+/* ==========================
+   Animation for Title +Binny
+========================== */
+@keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+
+@keyframes bounce {
+    from {
+      transform: translateY(0px);
+    }
+    to {
+      transform: translateY(-20px);
+    }
+  }
+  
+  /* ==========================
+   ButtonStyle
+========================== */
+.body .text {
+    font-family: 'Andale Mono', 'Courier New', monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: -10px;
+    gap: 0px;
+    padding: 10px 20px;
+   color: chocolate;
+}
+  
+
+label {
+  display: block;
+  margin-top: 12px;
+  font-weight: 600p;
+}
+
+
+/* Get anIMATion INSPirations from 
+https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API/Using_the_Web_Animations_API
+*/

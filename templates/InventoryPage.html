@@ -7,20 +7,77 @@
 
 {% block body %}
 <div class="welcome1">
-    <h1>Food Inventory</h1>
+    </a><h1>Food Inventory</h1>
 </div>
 
 <div class="body">
-    <a href="/add" class="text">Add New Item</a>
+    <a href="/add" class="text">Add New Item</a>  <!-- Link to Add Item page -->
 </div>
 
 <div class="body">
+    
+<!-- ==============================
+ Replaced generic list with a table 
+ ==================================    
     <ul>
         {% for item in items %}
         <li>
-            {{ item.name }} — {{ item.quantity }} — Best by: {{ item.best_by }}
+            {{ item.name }} — {{ item.quantity }} — {{ item.category }} — Best by: {{ item.best_by }}
         </li>
         {% endfor %}
     </ul>
+=================================== -->
+<!-- =============== 
+     Inventory Table 
+     =============== -->
+    <table class="inventory-table" id="inventoryTable">
+        <thead>
+            <tr><!-- Will work on sorting table by columns later-->
+                <th>Name</th>      
+                <th>Quantity</th>  
+                <th>Category</th>  
+                <th>Best By</th>   
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.category }}</td>
+                <td>{{ item.best_by }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+<!-- ================ -->
+    <br /><br /><div class="images">   <!-- Images used as link for going back one page -->
+        <a href="javascript:history.back()"><img src="{{ url_for('static', filename='Pictures/BinnyBack.png') }}" alt="bot" class="binnybot"></a>
+    </div>
 </div>
+
+<!-- ========================
+     Sort List By Oldest Item
+     ======================== -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const table = document.getElementById("inventoryTable");
+    const tbody = table.querySelector("tbody");
+    const rows = Array.from(tbody.querySelectorAll("tr"));
+
+    rows.sort(function (a, b) {
+        const aText = a.children[3].innerText.trim(); // Best By column
+        const bText = b.children[3].innerText.trim();
+
+        // If your dates are in YYYY-MM-DD (Flask default), this works directly:
+        const aDate = new Date(aText);
+        const bDate = new Date(bText);
+
+        return aDate - bDate; // oldest first
+    });
+
+    rows.forEach(row => tbody.appendChild(row));
+});
+</script>
+<!-- ========================== -->
 {% endblock %}

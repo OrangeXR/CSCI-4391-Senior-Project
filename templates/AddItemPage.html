@@ -10,6 +10,9 @@
     <h1>Add Item</h1>
 </div>
 
+<!-- ==========================
+     Add Item to Inventory Form 
+     ========================== -->
 <form method="POST" class="body">
     <label for="name">Name</label>
     <input name="name" placeholder="Item Name" required>
@@ -22,4 +25,9 @@
 
     <button type="submit" class="text">Add</button>
 </form>
+<!-- =========================== -->
+ 
+<br /><br /><div class="images">
+        <a href="javascript:history.back()"><img src="{{ url_for('static', filename='Pictures/BinnyBack.png') }}" alt="bot" class="binnybot"></a>
+    </div>
 {% endblock %}

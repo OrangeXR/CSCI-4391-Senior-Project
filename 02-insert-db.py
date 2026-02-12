@@ -1,5 +1,7 @@
 import sqlite3
 
+# Inserts values into inventory.db
+
 sample_items = [
     ("Black Beans", "Canned", 2, "2026-03-01"),
     ("Milk", "Dairy", 1, "2026-02-12"),

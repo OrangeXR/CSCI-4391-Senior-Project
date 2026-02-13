@@ -40,6 +40,8 @@ def home_page():
         current_player=current_player
     )
 
+# this is for trial 2
+
 
 # ========================================== 
 # Pulls data from db per "player" and stores 
@@ -209,4 +211,5 @@ def delete_item(item_id, player_id):
 # ======================
 
 if __name__ == "__main__":
+
     app.run(debug=True)

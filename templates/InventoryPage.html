@@ -7,36 +7,29 @@
 
 {% block body %}
 <div class="welcome1">
-    </a><h1>Food Inventory</h1>
+    <h1>Food Inventory</h1>
 </div>
 
 <div class="body">
-    <a href="/add" class="text">Add New Item</a>  <!-- Link to Add Item page -->
+    <!-- =================================== current player stats ================================== -->
+    <p class="text">Player: <strong>{{ current_player.name }}</strong></p>
+    <p class="text">Score: <strong>{{ current_player.score }}</strong></p>
+    <a href="{{ url_for('add_item_page', player_id=current_player.id) }}" class="text">Add New Item</a>
+    <!-- =========================================================================================== -->
 </div>
 
 <div class="body">
-    
-<!-- ==============================
- Replaced generic list with a table 
- ==================================    
-    <ul>
-        {% for item in items %}
-        <li>
-            {{ item.name }} — {{ item.quantity }} — {{ item.category }} — Best by: {{ item.best_by }}
-        </li>
-        {% endfor %}
-    </ul>
-=================================== -->
-<!-- =============== 
-     Inventory Table 
-     =============== -->
+    <!-- =================== Table Setup =================== -->
     <table class="inventory-table" id="inventoryTable">
         <thead>
-            <tr><!-- Will work on sorting table by columns later-->
-                <th>Name</th>      
-                <th>Quantity</th>  
-                <th>Category</th>  
-                <th>Best By</th>   
+            <tr>
+                <th>Name</th>
+                <th>Quantity</th>
+                <th>Category</th>
+                <th>Best By</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -46,19 +39,68 @@
                 <td>{{ item.quantity }}</td>
                 <td>{{ item.category }}</td>
                 <td>{{ item.best_by }}</td>
+                <td>{{ item.price }}</td>
+                <td>{{ item.status }}</td>
+                <td>
+
+                    <!-- ==========================================================  Status Check ========================================================== -->
+                    <!-- =================== 
+                         Active Status Check 
+                         =================== -->
+                    {% if item.status == 'active' %}
+                        <form action="{{ url_for('use_item', item_id=item.id, player_id=current_player.id) }}" method="POST" style="display:inline;">
+                            <button type="submit">Use</button>
+                        </form>
+
+                        <form action="{{ url_for('donate_item', item_id=item.id, player_id=current_player.id) }}" method="POST" style="display:inline;">
+                            <button type="submit">Donate</button>
+                        </form>
+
+                        <form action="{{ url_for('compost_item', item_id=item.id, player_id=current_player.id) }}" method="POST" style="display:inline;">
+                            <button type="submit">Compost</button>
+                        </form>
+                    {% endif %}
+
+                    <!-- ==================== 
+                         Compost Status Check 
+                         ==================== -->
+                    {% if item.status == 'composted' %}
+                        <form action="{{ url_for('delete_item', item_id=item.id, player_id=current_player.id) }}" method="POST" style="display:inline;">
+                            <button type="submit">Delete</button>
+                        </form>
+                    {% endif %}
+
+                    <!-- =================== 
+                         Donate Status Check 
+                         =================== -->
+                    {% if item.status == 'donated' %}
+                        <form action="{{ url_for('delete_item', item_id=item.id, player_id=current_player.id) }}" method="POST" style="display:inline;">
+                            <button type="submit">Delete</button>
+                        </form>
+                    {% endif %}
+                    <!-- =================================================================================================================================== -->
+                </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-<!-- ================ -->
-    <br /><br /><div class="images">   <!-- Images used as link for going back one page -->
-        <a href="javascript:history.back()"><img src="{{ url_for('static', filename='Pictures/BinnyBack.png') }}" alt="bot" class="binnybot"></a>
+    <!-- ====================================== -->
+    <br /><br />
+    <div class="images">
+        <a href="javascript:history.back()">
+            <img src="{{ url_for('static', filename='Pictures/BinnyBack.png') }}" alt="bot" class="binnybot">
+        </a>
+        <a href="/">
+            <img src="{{ url_for('static', filename='Pictures/BinnyHome.png') }}" alt="homebot" class="binnyhome">
+        </a>
     </div>
 </div>
+
 
 <!-- ========================
      Sort List By Oldest Item
      ======================== -->
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const table = document.getElementById("inventoryTable");
@@ -66,14 +108,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const rows = Array.from(tbody.querySelectorAll("tr"));
 
     rows.sort(function (a, b) {
-        const aText = a.children[3].innerText.trim(); // Best By column
+        const aText = a.children[3].innerText.trim();
         const bText = b.children[3].innerText.trim();
-
-        // If your dates are in YYYY-MM-DD (Flask default), this works directly:
         const aDate = new Date(aText);
         const bDate = new Date(bText);
-
-        return aDate - bDate; // oldest first
+        return aDate - bDate;
     });
 
     rows.forEach(row => tbody.appendChild(row));

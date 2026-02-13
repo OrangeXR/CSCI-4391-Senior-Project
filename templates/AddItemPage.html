@@ -10,24 +10,41 @@
     <h1>Add Item</h1>
 </div>
 
-<!-- ==========================
-     Add Item to Inventory Form 
-     ========================== -->
+
+<!-- ======================
+     Add Items to Inventory
+     ====================== -->
 <form method="POST" class="body">
+    <!-- Keep player_id in the form so we know who owns the item -->
+    <input type="hidden" name="player_id" value="{{ current_player.id }}">
+
     <label for="name">Name</label>
     <input name="name" placeholder="Item Name" required>
+
     <label for="category">Category</label>
     <input name="category" placeholder="Item Category" required>
+
     <label for="quantity">Quantity</label>
-    <input name="quantity" type="number" placeholder="Item Quantity" required>
+    <input name="quantity" type="number" min="1" placeholder="Item Quantity" required>
+
     <label for="best_by">Best By</label>
     <input name="best_by" type="date" placeholder="Best by" required>
 
+    <label for="price">Price per Item</label>
+    <input name="price" type="number" step="0.01" min="0" placeholder="Price per item" required>
+
     <button type="submit" class="text">Add</button>
 </form>
-<!-- =========================== -->
- 
-<br /><br /><div class="images">
-        <a href="javascript:history.back()"><img src="{{ url_for('static', filename='Pictures/BinnyBack.png') }}" alt="bot" class="binnybot"></a>
-    </div>
+
+<!-- ======================== -->
+
+<br /><br />
+<div class="images">
+    <a href="javascript:history.back()">
+        <img src="{{ url_for('static', filename='Pictures/BinnyBack.png') }}" alt="bot" class="binnybot">
+    </a>
+    <a href="/">
+        <img src="{{ url_for('static', filename='Pictures/BinnyHome.png') }}" alt="homebot" class="binnyhome">
+    </a>
+</div>
 {% endblock %}

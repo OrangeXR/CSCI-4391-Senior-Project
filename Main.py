@@ -191,7 +191,7 @@ def delete_item(item_id, player_id):
     db.close()
 
     return redirect(url_for("inventory_page", player_id=player_id))
-
+# This is an edit from the main branch
 
 # ======================
 # Uncomment this section
@@ -209,4 +209,5 @@ def delete_item(item_id, player_id):
 # ======================
 
 if __name__ == "__main__":
+
     app.run(debug=True)

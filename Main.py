@@ -193,6 +193,9 @@ def delete_item(item_id, player_id):
     return redirect(url_for("inventory_page", player_id=player_id))
 
 
+# This is for Trial 3
+
+
 # ======================
 # Uncomment this section
 # to serve over network
@@ -209,4 +212,5 @@ def delete_item(item_id, player_id):
 # ======================
 
 if __name__ == "__main__":
+
     app.run(debug=True)

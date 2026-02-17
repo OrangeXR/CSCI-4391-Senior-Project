@@ -20,12 +20,13 @@ body {
     gap: clamp(10px, 6vw, 40px);
     flex-wrap: wrap;
     align-items: flex-start;
+    height:150px;
+    width:150px;
 	border-radius: 50%;
     animation:
       bounce 300ms 
       alternate infinite
-      cubic-bezier(.2, .65, .6, 1),
-      typing 3.5s steps(23, end);
+      cubic-bezier(.2, .65, .6, 1);
 }
 
 

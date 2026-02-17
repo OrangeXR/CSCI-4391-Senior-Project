@@ -51,6 +51,59 @@ def home_page():
         current_player=current_player
     )
 
+# =====================
+# User Profile
+# =====================
+#@app.route("/userprofile")
+#@login_required
+#def profile():
+#    player_id = session["player_id"]
+#    db = get_db()
+
+#    current_player = db.execute("SELECT * FROM players WHERE id = ?", (session["player_id"],)).fetchone()
+#    db.close()
+
+#    return render_template("UserProfile.html", current_player=current_player)
+
+
+@app.route("/userprofile", methods=["GET", "POST"])
+@login_required
+def userprofile():
+    player_id = session["player_id"]
+    db = get_db()
+
+# ========================================================================= Change profile pic upload
+    if request.method == "POST":
+        file = request.files.get("profile_picture")
+
+        if file and file.filename != "":
+            filename = secure_filename(file.filename)
+            filepath = os.path.join("static/profile_pics", filename)
+            file.save(filepath)
+
+            db.execute(
+                "UPDATE players SET profile_picture = ? WHERE id = ?",
+                (filename, player_id)
+            )
+            db.commit()
+
+        db.close()
+        return redirect(url_for("userprofile"))
+
+# =========================================================================
+
+    player = db.execute("SELECT * FROM players WHERE id = ?", (player_id,)).fetchone()
+   
+    db.close()
+
+    return render_template("UserProfile.html", player=player)
+
+
+
+
+
+
+
 # ============================
 # Registration Page + Handler
 # ============================
@@ -109,6 +162,7 @@ def login():
 def logout():
     session.pop("player_id", None)
     return redirect("/login")
+
 
 # ==========================================
 # Inventory Page (uses logged-in player)
@@ -295,6 +349,8 @@ def scoreboard():
     db.close()
 
     return render_template("ScoreboardPage.html", players=players)
+
+
 
 
 

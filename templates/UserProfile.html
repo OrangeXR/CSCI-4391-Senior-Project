@@ -2,47 +2,83 @@
 
 {% block head %}
 
-<title>Scoreboard</title>
+<title>User Profile</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/homestyle.css') }}">
 {% endblock %}
 
 {% block body %}
 <div class="welcome1">
-    <h1>Scoreboard</h1>
-    <p class="text">Players ranked from lowest score to highest.</p>
+    <h1>Update Profile</h1>
+    <p class="text">Edit and update your profile.</p>
 </div>
 
 <div class="body">
-    <table class="inventory-table">
+
+        <table class="inventory-table">
         <thead>
             <tr>
-                <th>Rank</th>
-                <th>Player</th>
-                <th>Profile</th>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Picture</th>
                 <th>Score</th>
             </tr>
         </thead>
         <tbody>
-            {% for player in players %}
             <tr>
-                <td>{{ loop.index }}</td>
                 <td>{{ player.name }}</td>
-
+                <td>{{ player.username }}</td>
                 <td>
                     {% if player.profile_picture %}
-                        <img src="{{ url_for('static', filename='profile_pics/' ~ player.profile_picture) }}"
-                             alt="Profile Picture"
-                             style="width:40px; height:40px; border-radius:50%;">
+                        <img src="{{ url_for('static', filename='profile_pics/' ~ player.profile_picture) }}" alt="Profile Picture" width="60">
                     {% else %}
-                        <span>No Image</span>
+                        No picture
                     {% endif %}
                 </td>
-
                 <td>{{ player.score }}</td>
             </tr>
-            {% endfor %}
         </tbody>
     </table>
+<center>
+<table>
+    <tr>
+        <td>
+            <form action="{{ url_for('userprofile') }}" method="POST" enctype="multipart/form-data">
+
+                <label class="text">Upload New Profile Picture:</label><br>
+
+                <input type="file" name="profile_picture" accept="image/*"><br>
+
+                <button class="text" type="submit">Upload New Picture</button>
+            </form>
+        </td>
+    </tr>
+
+
+
+</table>
+</center>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 <div class="images">
 

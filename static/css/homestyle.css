@@ -147,6 +147,21 @@ button.text {
     background-color: #fafafa;
 }
 
+/*  ===========
+    Image Trail
+    ===========
+*/
+.trail {
+    position: fixed;
+    width: 40px;
+    height: 40px;
+    pointer-events: none;
+    opacity: 1;
+    transform: translate(10%, 10%);
+    transition: opacity 0.6s ease-out;
+}
+
+
 /* ==========================
    Mobile Tweaks
    ========================== */
@@ -203,3 +218,4 @@ button.text {
 /* Get anIMATion INSPirations from 
 https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API/Using_the_Web_Animations_API
 */
+

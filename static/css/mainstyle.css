@@ -1,0 +1,12 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+/* Base layout styling can go here if needed */
+body {
+	font-family: 'Andale Mono', 'Courier New', monospace;
+}
+
+

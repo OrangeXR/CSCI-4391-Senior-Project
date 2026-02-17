@@ -161,6 +161,43 @@ button.text {
 }
 
 
+/* ==========================
+   Create account 
+   ========================== */
+
+   .Register-Button{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px;
+    gap: 10px;
+   }
+   .CreateLab{
+    font-family: 'Andale Mono', 'Courier New', monospace;
+    text-align: center;
+   }
+ 
+.text-register{
+  font-family: 'Andale Mono', 'Courier New', monospace;
+  text-align: center;
+  color: chocolate;
+}
+
+/* ==========================
+   Go back  
+   ========================== */
+
+.Go-back-Tologin{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px;
+  gap: 10px;
+  font-family: 'Andale Mono', 'Courier New', monospace;
+  text-align: center;
+  color: chocolate;
+}
+
 
 
 /* Get anIMATion INSPirations from 

@@ -1,14 +1,22 @@
 {% extends 'HomePageSetup.html' %}
 
 {% block head %}
+
 <title>Login</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/homestyle.css') }}">
 {% endblock %}
 
 {% block body %}
+
+<div class="welcome1">
+    <h1>Binny and Bloom.com</h1>
+</div> 
+
 <div class="welcome1">
     <h1>Login</h1>
 </div>
+
+
 
 <form method="POST" class="body">
     <label>Username</label>
@@ -18,7 +26,13 @@
     <input name="password" type="password" required>
 
     <button type="submit" class="text">Login</button>
+
+    <div class="Register-Button">
+        <div class ="CreateLab"><label>Dont have an account ? </label></div>
+        <a href="/register" class="text-register">Create an account</a>
+        </div>
 </form>
 
-<a href="/register" class="text">Create an account</a>
+
+
 {% endblock %}

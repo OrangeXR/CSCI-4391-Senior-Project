@@ -219,3 +219,68 @@ button.text {
 https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API/Using_the_Web_Animations_API
 */
 
+
+
+
+/* ==========================
+   Background for login 
+   ========================== */
+
+   /* Got inspo by this  
+https://www.youtube.com/watch?v=UinSLYd-kSw
+*/
+
+
+.Tree-background{
+  display:flex;
+  align-items: flex-end;
+  width: 100%;
+  bottom: 0; 
+ }
+
+.grass-container {
+position: absolute;
+width: 100vw;
+height: 40vh;
+background: #c6e48b;
+z-index: 1; 
+}
+
+
+.trees{
+height: 500px;
+width: 350px;
+background: linear-gradient(
+  to top,
+  rgb(125, 72, 12),
+  rgb(184, 107, 48),
+
+  green ,
+  rgb(17, 194, 17),
+  rgb(0, 80, 0)
+);
+clip-path: polygon(
+  50% 0%,  
+  75% 15%, 
+  55% 10%,
+  80% 30%,
+  60% 25%,
+  85% 50%,
+  65% 45%,
+  100% 70%,
+  55% 60%,
+  55% 100%,
+  45% 100%,
+  45% 60%,
+  0 70%,
+  35% 45%,
+  15% 50%,
+  40% 25%,
+  20% 30%,
+  45% 10%,
+  25% 15%
+);
+z-index: 2; 
+  bottom: 0; 
+}
+

@@ -10,8 +10,9 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 app.secret_key = "super-secret-key"
 
-UPLOAD_FOLDER = os.path.join(app.root_path, "static", "profile_pics") # <------ Absolute path from app root - line 81
+#UPLOAD_FOLDER = os.path.join(app.root_path, "static", "profile_pics") # <------ Absolute path from app root - line 81
 #UPLOAD_FOLDER = "static/profile_pics"
+UPLOAD_FOLDER = "src/static/profile_pics"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 # will this run?
@@ -382,5 +383,6 @@ if __name__ == "__main__":
 # gunicorn app:app
 
 # ================
+
 
 

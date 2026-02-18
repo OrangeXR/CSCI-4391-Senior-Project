@@ -1,0 +1,116 @@
+{% extends 'HomePageSetup.html' %}
+
+{% block head %}
+
+<title>User Profile</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/homestyle.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="welcome1">
+    <h1>Update Profile</h1>
+    <p class="text">Edit and update your profile.</p>
+</div>
+
+<div class="body">
+
+        <table class="inventory-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Picture</th>
+                <th>Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ player.name }}</td>
+                <td>{{ player.username }}</td>
+                <td>
+                    {% if player.profile_picture %}
+                        <img src="{{ url_for('static', filename='profile_pics/' ~ player.profile_picture) }}" alt="Profile Picture" width="60">
+                    {% else %}
+                        No picture
+                    {% endif %}
+                </td>
+                <td>{{ player.score }}</td>
+            </tr>
+        </tbody>
+    </table>
+<center>
+<table>
+    <tr>
+        <td>
+            <form action="{{ url_for('userprofile') }}" method="POST" enctype="multipart/form-data">
+
+                <label class="text">Upload New Profile Picture:</label><br>
+
+                <input type="file" name="profile_picture" accept="image/*"><br>
+
+                <button class="text" type="submit">Upload New Picture</button>
+            </form>
+        </td>
+    </tr>
+
+
+
+</table>
+</center>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="images">
+
+    <a href="/">
+        <img src="{{ url_for('static', filename='Pictures/BinnyHome.png') }}" alt="homebot" class="binnyhome">
+    </a>
+</div>
+</div>
+
+
+
+<!-- ===========
+     Mouse trail
+     =========== -->
+<script>
+document.addEventListener("mousemove", function (e) {
+    const trail = document.createElement("img");
+    trail.src = "{{ url_for('static', filename='Pictures/trail.png') }}";
+    trail.className = "trail";
+    trail.style.left = e.pageX + "px";
+    trail.style.top = e.pageY + "px";
+
+    document.body.appendChild(trail);
+
+    setTimeout(() => {
+        trail.style.opacity = "0";
+    }, 10);
+
+    setTimeout(() => {
+        trail.remove();
+    }, 600);
+});
+</script>
+<!-- ========== -->
+{% endblock %}

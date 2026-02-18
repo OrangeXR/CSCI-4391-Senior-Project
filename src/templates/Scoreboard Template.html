@@ -1,0 +1,46 @@
+{% extends 'HomePageSetup.html' %}
+
+{% block body %}
+<div class="welcome1">
+    <h1>Scoreboard</h1>
+    <p class="text">Players ranked from lowest score to highest.</p>
+</div>
+
+<div class="body">
+    <table class="inventory-table">
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>Player</th>
+                <th>Profile</th>
+                <th>Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for player in players %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ player.name }}</td>
+
+                <td>
+                    {% if player.profile_picture %}
+                        <img src="{{ url_for('static', filename='profile_pics/' ~ player.profile_picture) }}"
+                             alt="Profile Picture"
+                             style="width:40px; height:40px; border-radius:50%;">
+                    {% else %}
+                        <span>No Image</span>
+                    {% endif %}
+                </td>
+
+                <td>{{ player.score }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <br>
+    <a href="/" class="text">
+        <button class="text">Back to Home</button>
+    </a>
+</div>
+{% endblock %}

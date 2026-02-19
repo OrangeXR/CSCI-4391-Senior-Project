@@ -32,6 +32,29 @@
      
 }
 
+
+/* ==========================
+   Profile pic 
+   ========================== */
+
+.profile-pic{
+	display: flex;
+    justify-content: center;
+    gap: clamp(10px, 6vw, 40px);
+    flex-wrap: wrap;
+    align-items: flex-start;
+    height:150px;
+    width:150px;
+	border-radius: 50%;
+    animation:
+      bounce 300ms 
+      alternate infinite
+      cubic-bezier(.2, .65, .6, 1);
+}
+
+
+
+
 .binnybot {
   max-width: 100%;
   height: auto;
@@ -283,4 +306,5 @@ clip-path: polygon(
 z-index: 2; 
   bottom: 0; 
 }
+
 

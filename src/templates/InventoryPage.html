@@ -26,9 +26,19 @@
         <thead>
             <tr>
                 <th>Name</th>
-                <th>Quantity</th>
                 <th>Category</th>
+                <th>Quantity</th>
+                <th>Unit</th>
+                <th>Measurement Type</th>
+                <th>Ggrams</th>
+                <th>ML</th>
+                <th>Date Purchased</th>
                 <th>Best By</th>
+                <th>Raw</th>
+                <th>Perishable</th>
+                <th>Opened</th>
+                <th>Donation Allowed</th>
+                <th>Decomposition Flag</th>
                 <th>Price</th>
                 <th>Status</th>
                 <th>Actions</th>
@@ -38,9 +48,19 @@
             {% for item in items %}
             <tr>
                 <td>{{ item.name }}</td>
-                <td>{{ item.quantity }}</td>
                 <td>{{ item.category }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.unit }}</td>
+                <td>{{ item.measurement_type }}</td>
+                <td>{{ item.quantity_grams }}</td>
+                <td>{{ item.quantity_ml }}</td>
+                <td>{{ item.purchase_date }}</td>
                 <td>{{ item.best_by }}</td>
+                <td>{{ item.raw_meat }}</td>
+                <td>{{ item.perishable }}</td>
+                <td>{{ item.opened }}</td>
+                <td>{{ item.donation_allowed }}</td>
+                <td>{{ item.decomposition_flag }}</td>
                 <td>{{ item.price }}</td>
                 <td>{{ item.status }}</td>
                 <td>
@@ -145,4 +165,34 @@ document.addEventListener("mousemove", function (e) {
 </script>
 <!-- ========== -->
 <!-- ========================== -->
+
+
+<div class="Tree-background">
+
+    <!-- ===========
+     Bottom trees
+     =========== -->
+
+<div class="trees"></div>
+<div class="trees" style="width: 350px; height: 300px; left: 10px;"></div>
+<div class="trees" style="width: 350px; height: 300px; left: 0px;"></div>
+<div class="trees"></div>
+<div class="trees" style="width: 350px; height: 300px; left: 10px;"></div>
+<div class="trees" style="width: 350px; height: 300px; left: 0px;"></div>
+<div class="trees"></div>
+<div class="trees" style="width: 350px; height: 300px; left: 100px;"></div>
+<div class="trees" style="width: 350px; height: 300px; left: 200px;"></div>
+<div class="trees" style="width: 350px; height: 500px; left: 300px;"></div>
+
+</div>
+
+<div class="grass-container"></div>
+<div class="binny-Tree"></div>
+
+
+
+
 {% endblock %}
+
+
+

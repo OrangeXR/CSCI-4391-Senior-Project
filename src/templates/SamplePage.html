@@ -1,0 +1,39 @@
+{% extends 'SamplePageSetup.html' %}
+
+{% block head %}
+<title>Binny and Bloom.com</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/homestyle.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="SampleText">
+    <!-- ===== Page Content ====== -->
+    <h1>This is just a sample page</h1>
+    <!-- ========================= -->
+</div>
+
+
+<!-- ===========
+     Mouse trail
+     =========== -->
+<script>
+document.addEventListener("mousemove", function (e) {
+    const trail = document.createElement("img");
+    trail.src = "{{ url_for('static', filename='Pictures/trail.png') }}";
+    trail.className = "trail";
+    trail.style.left = e.pageX + "px";
+    trail.style.top = e.pageY + "px";
+
+    document.body.appendChild(trail);
+
+    setTimeout(() => {
+        trail.style.opacity = "0";
+    }, 10);
+
+    setTimeout(() => {
+        trail.remove();
+    }, 600);
+});
+</script>
+<!-- ========== -->
+{% endblock %}

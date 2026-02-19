@@ -19,10 +19,19 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 # =============
 # Connect to db
 # =============
+#def get_db():
+#    conn = sqlite3.connect("src/instance/inventory.db")
+#    conn.row_factory = sqlite3.Row
+#    return conn
+
 def get_db():
-    conn = sqlite3.connect("src/instance/inventory.db")
+    db_path = os.path.join(BASE_DIR, "instance", "inventory.db")
+    conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
+
+
+
 
 # ======================
 # Login Required Wrapper
@@ -384,3 +393,4 @@ if __name__ == "__main__":
 # gunicorn app:app
 
 # ================
+

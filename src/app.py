@@ -10,12 +10,12 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 app.secret_key = "super-secret-key"
 
-#UPLOAD_FOLDER = os.path.join(app.root_path, "static", "profile_pics") # <------ Absolute path from app root - line 81
-#UPLOAD_FOLDER = "static/profile_pics"
-UPLOAD_FOLDER = "src/static/profile_pics"
+BASE_DIR = app.root_path
+
+UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "profile_pics")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-# will this run?
+
 # =============
 # Connect to db
 # =============
@@ -80,7 +80,8 @@ def userprofile():
 
         if file and file.filename != "":
             filename = secure_filename(file.filename)
-            filepath = os.path.join("static/profile_pics", filename) # <-------- file structure to save file
+            filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+
             file.save(filepath)
 
             db.execute(
@@ -381,8 +382,4 @@ if __name__ == "__main__":
 # ================
 # for render.com
 # gunicorn app:app
-
 # ================
-
-
-

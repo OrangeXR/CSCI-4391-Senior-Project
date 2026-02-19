@@ -363,8 +363,8 @@ def scoreboard():
 # ngrok http 5000
 # ======================
 
-#if __name__ == "__main__":
-#    app.run(host='0.0.0.0', port=5000)
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=5000)
 
 
 # ======================
@@ -372,8 +372,8 @@ def scoreboard():
 # to only serve locally
 # ======================
 
-if __name__ == "__main__":
-    app.run(debug=True)
+#if __name__ == "__main__":
+#    app.run(debug=True)
 
 # ===============
 # ngrok http 5000
@@ -382,4 +382,5 @@ if __name__ == "__main__":
 # ================
 # for render.com
 # gunicorn app:app
+
 # ================

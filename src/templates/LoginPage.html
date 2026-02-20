@@ -1,10 +1,14 @@
-{% extends 'HomePageSetup.html' %}
+{% extends '0-MainPageSetup.html' %}
+
 
 {% block head %}
 
 <title>Login</title>
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='Pictures/favicon.png') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/homestyle.css') }}">
-{% endblock %}}
+{% endblock %}
+
+
 
 {% block body %}
 
@@ -15,7 +19,6 @@
 <div class="welcome1">
     <h1>Login</h1>
 </div>
-
 
 
 <form method="POST" class="body">
@@ -29,60 +32,9 @@
 
     <div class="Register-Button">
         <div class ="CreateLab"><label>Dont have an account ? </label></div>
-        <a href="/register" class="text-register">Create an account</a>
+            <a href="/register" class="text-register">Create an account</a>
         </div>
 </form>
-
-
-
-<!-- ===========
-     Mouse trail
-     =========== -->
-<script>
-document.addEventListener("mousemove", function (e) {
-    const trail = document.createElement("img");
-    trail.src = "{{ url_for('static', filename='Pictures/trail.png') }}";
-    trail.className = "trail";
-    trail.style.left = e.pageX + "px";
-    trail.style.top = e.pageY + "px";
-
-    document.body.appendChild(trail);
-
-    setTimeout(() => {
-        trail.style.opacity = "0";
-    }, 10);
-
-    setTimeout(() => {
-        trail.remove();
-    }, 600);
-});
-</script>
-<!-- ========== -->
-
-
-<div class="Tree-background">
-
-    <!-- ===========
-     Bottom trees
-     =========== -->
-
-<div class="trees"></div>
-<div class="trees" style="width: 350px; height: 300px; left: 10px;"></div>
-<div class="trees" style="width: 350px; height: 300px; left: 0px;"></div>
-<div class="trees"></div>
-<div class="trees" style="width: 350px; height: 300px; left: 10px;"></div>
-<div class="trees" style="width: 350px; height: 300px; left: 0px;"></div>
-<div class="trees"></div>
-<div class="trees" style="width: 350px; height: 300px; left: 100px;"></div>
-<div class="trees" style="width: 350px; height: 300px; left: 200px;"></div>
-<div class="trees" style="width: 350px; height: 500px; left: 300px;"></div>
-
-</div>
-
-<div class="grass-container"></div>
-<div class="binny-Tree"></div>
-
-
 
 
 {% endblock %}

@@ -17,7 +17,7 @@ load_dotenv()  # Load .env file
 
 
 
-OPENROUTER_API_KEY="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"
+OPENROUTER_API_KEY=""
 #print("DEBUG — OPENROUTER_API_KEY =", repr(OPENROUTER_API_KEY)) # Makes sure the correct key is being sent out
 
 

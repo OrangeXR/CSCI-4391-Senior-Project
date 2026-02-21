@@ -36,6 +36,9 @@
         <a href="{{ url_for('userprofile') }}" class="text">
             <button type="submit" class="text">User Profile</button>
         </a>
+        <a href="{{ url_for('ai_menu', player_id=current_player.id) }}" class="text">
+            <button class="text">AI Menu</button>
+        </a>
         <a href="{{ url_for('scoreboard') }}" class="text">
              <button class="text">Scoreboard</button>
         </a>

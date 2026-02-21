@@ -23,8 +23,8 @@ def get_all_items():
 def add_item(data):
     db = get_db()
     db.execute(
-        "INSERT INTO inventory (name, category, quantity, best_by) VALUES (?,?,?,?)",
-        (data["name"], data["category"], data["quantity"], data["best_by"])
+        "INSERT INTO inventory (name, category, quantity, unit, measurement_type, quantity_grams, quantity_ml, purchase_date, best_by, raw_meat, perishable, opened, donation_allowed, decomposition_flag, price ,status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        (data["name"], data["category"], data["quantity"], data["unit"], data["measurement_type"], data["quantity_grams"], data["quantity_ml"], data["purchase_date"], data["best_by"], data["raw_meat"], data["perishable"], data["opened"], data["donation_allowed"], data["decomposition_flag"], data["price"], data["status"])
     )
     db.commit()
     db.close()

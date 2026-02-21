@@ -21,6 +21,7 @@
 </div>
 
 <div class="body">
+    <div class="table-container">
     <!-- =================== Table Setup =================== -->
     <table class="inventory-table" id="inventoryTable">
         <thead>
@@ -47,22 +48,22 @@
         <tbody>
             {% for item in items %}
             <tr>
-                <td>{{ item.name }}</td>
-                <td>{{ item.category }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>{{ item.unit }}</td>
-                <td>{{ item.measurement_type }}</td>
-                <td>{{ item.quantity_grams }}</td>
-                <td>{{ item.quantity_ml }}</td>
-                <td>{{ item.purchase_date }}</td>
-                <td>{{ item.best_by }}</td>
-                <td>{{ item.raw_meat }}</td>
-                <td>{{ item.perishable }}</td>
-                <td>{{ item.opened }}</td>
-                <td>{{ item.donation_allowed }}</td>
-                <td>{{ item.decomposition_flag }}</td>
-                <td>{{ item.price }}</td>
-                <td>{{ item.status }}</td>
+                <td data-label="Name:">{{ item.name }}</td>
+                <td data-label="Category:">{{ item.category }}</td>
+                <td data-label="Quantity:">{{ item.quantity }}</td>
+                <td data-label="Unit:">{{ item.unit }}</td>
+                <td data-label="Measurement:">{{ item.measurement_type }}</td>
+                <td data-label="Grams:">{{ item.quantity_grams }}</td>
+                <td data-label="mL:">{{ item.quantity_ml }}</td>
+                <td data-label="Purchase Date:">{{ item.purchase_date }}</td>
+                <td data-label="Best By Date:">{{ item.best_by }}</td>
+                <td data-label="Raw Meat:">{{ item.raw_meat }}</td>
+                <td data-label="Perishable:">{{ item.perishable }}</td>
+                <td data-label="Opened:">{{ item.opened }}</td>
+                <td data-label="Donation Allowed:">{{ item.donation_allowed }}</td>
+                <td data-label="Decomposed:">{{ item.decomposition_flag }}</td>
+                <td data-label="Price:">{{ item.price }}</td>
+                <td data-label="Status:">{{ item.status }}</td>
                 <td>
 
                     <!-- ==========================================================  Status Check ========================================================== -->
@@ -106,6 +107,9 @@
             {% endfor %}
         </tbody>
     </table>
+    </div>
+
+
     <!-- ====================================== -->
     <br /><br />
     <div class="images">

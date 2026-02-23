@@ -22,17 +22,26 @@ Senior Project - Spring 2026.
 <a name="install"></a>Installation:<br />
 
 <br /><br />
-to install necessary packages afterp pulling repo:
+to install necessary packages after pulling repo:
 - ```python -m venv .venv```        # create virtual environment
 - ```.venv\Scripts\activate```      # activate it
 - ```pip install -r requirements.txt```   # installs all packages listed
-- <img width="358" height="718" alt="image" src="https://github.com/user-attachments/assets/7d18573e-1c66-4347-865c-8e81bf21cd84" />
+
+- File Structure:
+ <img width="358" height="718" alt="image" src="https://github.com/user-attachments/assets/7d18573e-1c66-4347-865c-8e81bf21cd84" />
 
 
 <br /><br />
 <a name="usage"></a>Usage:<br />
+- navigate to the root directory
+- ```python3 src/app.py``` # be sure you are in the project root folder 
+
+
 
 <br /><br /><br />
+
+
+
 Pantry Inventory Control
 - Meal Planning
 - Donation Guide

@@ -17,7 +17,7 @@
 <!-- ======================
      Add Items to Inventory
      ====================== -->
-<form method="POST" class="body">
+<form method="POST" class="kawaii-table">
     <!-- Keep player_id in the form so we know who owns the item -->
     <input type="hidden" name="player_id" value="{{ current_player.id }}">
 
@@ -35,13 +35,13 @@
     <input name="unit" type="" placeholder="g, lb, fl_oz" required>
      
     <label for="measurement_type">Measurement Type</label>
-    <input name="" type="" min="" placeholder="" required>
+    <input name="measurement_type" type="" min="" placeholder="" required>
 
     <label for="quantity_grams">Quantity - grams</label>
-    <input name="" type="" min="" placeholder="" required>
+    <input name="quantity_grams" type="" min="" placeholder="" required>
                
     <label for="quantity_ml">Quantity - ML</label>
-    <input name="" type="" min="" placeholder="" required>
+    <input name="quantity_ml" type="" min="" placeholder="" required>
                 
     <label for="purchase_date">Purchase Date</label>
     <input name="purchase_date" type="date" placeholder="Purchase Date" required>
@@ -50,25 +50,23 @@
     <input name="best_by" type="date" placeholder="Best by" required>
     
     <label for="raw_meat">Raw Meat</label>
-    <input name="" type="" min="" placeholder="" required>
+    <input name="raw_meat" type="" min="" placeholder="" required>
 
     <label for="perishable">Perishable</label>
-    <input name="" type="" min="" placeholder="" required>
+    <input name="perishable" type="" min="" placeholder="" required>
     
     <label for="opened">Opened</label>
-    <input name="" type="" min="" placeholder="" required>
+    <input name="opened" type="" min="" placeholder="" required>
     
     <label for="donation_allowed">Donation Allowed</label>
-    <input name="" type="" min="" placeholder="" required>
+    <input name="donation_allowed" type="" min="" placeholder="" required>
     
     <label for="decomposition_flag">Decomposition Flag</label>
-    <input name="" type="" min="" placeholder="" required>
+    <input name="decomposition_flag" type="" min="" placeholder="" required>
 
     <label for="price">Price per Item</label>
     <input name="price" type="number" step="0.01" min="0" placeholder="Price per item" required>
 
-    <label for="status">Status</label>
-    <input name="status" type="number" placeholder="active" required>
 
 
     <button type="submit" class="text">Add</button>

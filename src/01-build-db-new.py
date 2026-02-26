@@ -54,36 +54,5 @@ CREATE TABLE IF NOT EXISTS inventory (
 )
 """)
 
-
-
-# ================================================
-# meals table (db for meal suggestions)
-# ================================================
-
-cursor.execute("""
-CREATE TABLE meals (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    player_id INTEGER NOT NULL,
-    name TEXT NOT NULL,
-    ingredients TEXT NOT NULL,
-    description TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (player_id) REFERENCES players(id)
-)
-""")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 conn.commit()
 conn.close()

@@ -1,6 +1,6 @@
-env
-.env
-venv
+.venv/
 .venv
+.env
+.env/
+__pycache__/
 docs/
-README.md

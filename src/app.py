@@ -15,9 +15,9 @@ app.secret_key = "super-secret-key"
 BASE_DIR = app.root_path
 load_dotenv()  # Load .env file
 
-AI_KEY = os.environ.get("AI_API_KEY") # ============== for render 
+OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY") # ============== for render 
 
-OPENROUTER_API_KEY="AI_KEY"
+# OPENROUTER_API_KEY=""
 #print("DEBUG — OPENROUTER_API_KEY =", repr(OPENROUTER_API_KEY)) # Makes sure the correct key is being sent out
 
 

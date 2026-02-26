@@ -177,7 +177,7 @@ def logout():
 @app.route("/inventory",methods=["GET", "POST"])
 @login_required
 def inventory_page():
-    from openrouterllm import Ai_Chat   #importing everything from openrouterllm
+    from src.openrouterllm import Ai_Chat   #importing everything from openrouterllm
     player_id = session["player_id"]
 
     db = get_db()
@@ -509,6 +509,7 @@ if __name__ == "__main__":
 # for render.com
 # gunicorn app:app
 # ================
+
 
 
 

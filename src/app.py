@@ -13,7 +13,7 @@ app = Flask(__name__)
 app.secret_key = "super-secret-key"
 
 BASE_DIR = app.root_path
-load_dotenv()  # Load .env file
+#load_dotenv()  # Load .env file
 
 OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY") # ============== for render 
 
@@ -507,4 +507,5 @@ if __name__ == "__main__":
 # for render.com
 # gunicorn app:app
 # ================
+
 

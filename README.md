@@ -62,3 +62,45 @@ The Krusty Compost Crew<br />
 <a href="https://github.com/jayv2025" title="Jay V"><img width="50" height="50" alt="profile image" src="https://avatars.githubusercontent.com/u/179060597?v=4" /></a>
 <a href="https://github.com/nere-var" title="Emma "><img width="50" height="50" alt="profile image" src="https://avatars.githubusercontent.com/u/58350011?v=4" /></a>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Edits for RENDER.COM
+## app.py
+
+
+
+#========================
+#Create Flask application
+#========================
+app = Flask(__name__)
+app.secret_key = "super-secret-key"
+
+BASE_DIR = app.root_path
+#load_dotenv()  # Load .env file
+
+
+
+OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY") #============== for render 
+#==========================================
+# Inventory Page (uses logged-in player)
+#==========================================
+@app.route("/inventory",methods=["GET", "POST"])
+@login_required
+def inventory_page():
+    from src.openrouterllm import Ai_Chat   #importing everything from openrouterllm  #<=========== this one line
+    player_id = session["player_id"]
+

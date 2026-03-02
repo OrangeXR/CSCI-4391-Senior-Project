@@ -25,48 +25,74 @@
     <input name="name" placeholder="Item Name" required>
 
     <label for="category">Category</label>
-    <input name="category" placeholder="Item Category" required>
-
+    <select name="category">
+        <option value="meat" selected>Meat</option>
+        <option value="seafood">Seafood</option>
+        <option value="dairy">Dairy</option>
+        <option value="produce" >Produce</option>
+        <option value="grains">Grains</option>
+        <option value="pantry" > Pantry(includes canned)</option>
+        <option value="frozen">Frozen</option>
+        <option value="snack" selected>snack</option>
+        <option value="beverages">Beverages(non-dairy)</option>
+    </select>
+    
     <label for="quantity">Quantity</label>
     <input name="quantity" type="number" min="1" placeholder="Item Quantity" required>
 
 
     <label for="unit">Unit</label>
-    <input name="unit" type="" placeholder="g, lb, fl_oz" required>
+    <select name="unit">
+        <optgroup label="Weight">
+            <option value="g">Grams (g)</option>
+            <option value="kg">Kilograms (kg)</option>
+            <option value="lb">Pounds (lb)</option>
+            <option value="oz">Ounces (oz)</option>
+        </optgroup>
+
+        <optgroup label="Volume">
+            <option value="ml">Milliliters (ml)</option>
+            <option value="fl_oz">Fluid Ounces (fl oz)</option>
+            <option value="cup">Cup</option>
+            <option value="tbsp">Tablespoon</option>
+            <option value="tsp">Teaspoon</option>
+            <option value="liter">Liter (L)</option>
+            <option value="gallon"> Gallon (gal)</option>
+            <option value="half_gallon"> Half Gallon</option>
+        </optgroup>
+
+        <optgroup label="Count">
+            <option value="each">Each</option>
+        </optgroup>
+    </select>
      
     <label for="measurement_type">Measurement Type</label>
-    <input name="measurement_type" type="" min="" placeholder="" required>
+    <select name="measurement_type">
+        <option value="weight"> Weight </option>
+        <option value="volume">Volume</option>
+        <option value="count">Count</option>
+    </select>     
 
-    <label for="quantity_grams">Quantity - grams</label>
-    <input name="quantity_grams" type="" min="" placeholder="" required>
-               
-    <label for="quantity_ml">Quantity - ML</label>
-    <input name="quantity_ml" type="" min="" placeholder="" required>
-                
+            
     <label for="purchase_date">Purchase Date</label>
     <input name="purchase_date" type="date" placeholder="Purchase Date" required>
     
     <label for="best_by">Best By</label>
     <input name="best_by" type="date" placeholder="Best by" required>
     
-    <label for="raw_meat">Raw Meat</label>
-    <input name="raw_meat" type="" min="" placeholder="" required>
-
-    <label for="perishable">Perishable</label>
-    <input name="perishable" type="" min="" placeholder="" required>
+   
+    <label for="opened?">Opened</label>
+    <input type="checkbox" name="opened" value="1">
     
-    <label for="opened">Opened</label>
-    <input name="opened" type="" min="" placeholder="" required>
-    
-    <label for="donation_allowed">Donation Allowed</label>
-    <input name="donation_allowed" type="" min="" placeholder="" required>
-    
-    <label for="decomposition_flag">Decomposition Flag</label>
-    <input name="decomposition_flag" type="" min="" placeholder="" required>
-
+  
     <label for="price">Price per Item</label>
     <input name="price" type="number" step="0.01" min="0" placeholder="Price per item" required>
 
+    <label for="status">Status</label>
+    <select name="status">
+        <option value="active" selected>Active</option>
+        <option value="inactive">Inactive</option>
+    </select>
 
 
     <button type="submit" class="text">Add</button>

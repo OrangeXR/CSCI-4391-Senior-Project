@@ -22,6 +22,8 @@ CREATE TABLE IF NOT EXISTS players (
     username TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
     profile_picture TEXT,
+    food_allergies TEXT "", 
+    dietary_needs TEXT "",
     score REAL NOT NULL DEFAULT 0
 )
 """)
@@ -53,6 +55,25 @@ CREATE TABLE IF NOT EXISTS inventory (
     FOREIGN KEY (player_id) REFERENCES players(id)
 )
 """)
+
+
+# ================================================
+# Meals table (items belong to current player)
+# ================================================
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS meals (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    player_id INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    ingredients TEXT NOT NULL,
+    description TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (player_id) REFERENCES players(id)
+)
+""")
+
+
 
 conn.commit()
 conn.close()

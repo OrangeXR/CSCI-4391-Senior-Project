@@ -15,7 +15,7 @@
 <div class="body">
     <!-- =================================== current player stats ================================== -->
     <p class="text">Player: <strong>{{ current_player.name }}</strong></p>
-    <p class="text">Score: <strong>{{ current_player.score }}</strong></p>
+    <p class="text">Score: <strong>{{ current_player.score  }}</strong></p>
     <a href="{{ url_for('add_item_page', player_id=current_player.id) }}" class="text">Add New Item</a>
     <!-- =========================================================================================== -->
 </div>
@@ -57,11 +57,11 @@
                     <td data-label="mL:">{{ item.quantity_ml }}</td>
                     <td data-label="Purchase Date:">{{ item.purchase_date }}</td>
                     <td data-label="Best By Date:">{{ item.best_by }}</td>
-                    <td data-label="Raw Meat:">{{ item.raw_meat }}</td>
-                    <td data-label="Perishable:">{{ item.perishable }}</td>
-                    <td data-label="Opened:">{{ item.opened }}</td>
-                    <td data-label="Donation Allowed:">{{ item.donation_allowed }}</td>
-                    <td data-label="Decomposed:">{{ item.decomposition_flag }}</td>
+                    <td data-label="Raw Meat:">{{ 'Yes' if item.raw_meat else 'No'}}</td>
+                    <td data-label="Perishable:">{{ 'Yes' if item.perishable else 'No'}}</td>
+                    <td data-label="Opened:">{{ 'Yes' if item.opened else 'No' }}</td>
+                    <td data-label="Donation Allowed:">{{ 'Yes' if item.donation_allowed else 'No' }}</td>
+                    <td data-label="Decomposed:">{{ 'Yes' if item.decomposition_flag else 'No'}}</td>
                     <td data-label="Price:">{{ item.price }}</td>
                     <td data-label="Status:">{{ item.status }}</td>
                     <td>
@@ -168,6 +168,7 @@ document.addEventListener("DOMContentLoaded", function () {
 <br>
 <div class="kawaii-ai-table">
     <center><h3><img src="{{ url_for('static', filename='Pictures/chef.png') }}" alt="chefbinny" class="binnychef">BinnyBot:</h3></center>
+    <center><h3>BinnyBot:</h3></center>
 <!--     <p>{{ Response }}</p> -->
      <pre class="kawaii-ai-response">{{ Response }}</pre>
 
@@ -179,7 +180,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 {% endblock %}
-
 
 
 

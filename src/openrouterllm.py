@@ -68,6 +68,15 @@ class Ai_Chat:
             lines.append(line)
         return "\n".join(lines)
 
+     #Inspired From https://coderivers.org/blog/json-save-python/
+    #Still Needs improvment 
+    def save_result_JSON(self, save_recipe_Json, file="saved_recipe.json"):
+        try:
+            with open(file, "w") as recipe_file:
+                json.dump(save_recipe_Json, recipe_file)
+        except (IOError, TypeError) as e:
+            print(f"Error occurred: {e}")
+            
 # get llm response functions
     def getLLMResponse(self,messages):
         # set headers and data for the request
@@ -136,11 +145,17 @@ class Ai_Chat:
             messages[:] = messages[-self.MAX_HISTORY:]
 
             response = self.getLLMResponse(messages) 
+
+            #Call save_result_JSON
+            recipe={
+                "response":response
+            }
+            self.save_result_JSON(recipe)
  
             print(f"LLM: {response}\n") # 
 
             messages.append({"role": "assistant", "content": response})
             
-#if __name__ == "__main__":
- #   Ai_bot = Ai_Chat()
-  #  Ai_bot.chatConsole()      
+if __name__ == "__main__":
+    Ai_bot = Ai_Chat()
+    Ai_bot.chatConsole() 

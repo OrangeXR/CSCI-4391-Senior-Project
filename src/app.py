@@ -5,7 +5,7 @@ import sqlite3
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-from unit_conversion import normalize_quantity
+from src.unit_conversion import normalize_quantity
 
 # ========================
 # Create Flask application
@@ -241,7 +241,7 @@ def logout():
 @app.route("/inventory",methods=["GET", "POST"])
 @login_required
 def inventory_page():
-    from openrouterllm import Ai_Chat   #importing everything from openrouterllm
+    from src.openrouterllm import Ai_Chat   #importing everything from openrouterllm
     player_id = session["player_id"]
 
     db = get_db()
@@ -607,6 +607,7 @@ if __name__ == "__main__":
 # for render.com
 # gunicorn app:app
 # ================
+
 
 
 

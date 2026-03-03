@@ -5,6 +5,7 @@ import sqlite3
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
+from src.unit_conversion import normalize_quantity
 
 # ========================
 # Create Flask application
@@ -302,7 +303,6 @@ def inventory_page():
 # =====================
 # Add Item Page
 # =====================
-from unit_conversion import normalize_quantity
 
 @app.route("/add", methods=["GET", "POST"])
 @login_required

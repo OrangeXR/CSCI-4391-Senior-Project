@@ -3,6 +3,8 @@ import os
 import sqlite3
 from dotenv import load_dotenv
 
+from validator import recipe_validator   #importing everything from validator
+
 
 
 class Ai_Chat: 
@@ -148,9 +150,13 @@ class Ai_Chat:
 
             #Call save_result_JSON
             recipe={
-                "response":response
+                "response":response,
+                "player_Id":self.PLAYER_ID    
             }
             self.save_result_JSON(recipe)
+            
+            call=recipe_validator()
+            call.read_from_JSON("saved_recipe.json")
  
             print(f"LLM: {response}\n") # 
 

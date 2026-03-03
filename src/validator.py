@@ -1,4 +1,5 @@
 import sqlite3
+import json
 
 
 class recipe_validator:
@@ -27,6 +28,16 @@ class recipe_validator:
         conn.close()
         print (dict(row) for row in rows)
         return [dict(row) for row in rows] # return list of dicts representing inventory items, each dict has keys: name, category, quantity, unit, quantity_grams, quantity_ml, best_by, opened
+
+    
+    def read_from_JSON(self,file):
+        try:
+            with open(file, 'r') as r_file:
+                data = json.load(r_file)
+            print("File data =", data)
+        except FileNotFoundError:
+            print("Error: The file 'data.json' was not found.")
+            
     
     def validate_AI_recipe(self,recipe,player_id):
         return("Still thinking lol")
@@ -36,3 +47,5 @@ if __name__ == "__main__":
     call=recipe_validator()
     Justcheking=call.get_active_inventory(call.PLAYER_ID)
     print(Justcheking)
+
+

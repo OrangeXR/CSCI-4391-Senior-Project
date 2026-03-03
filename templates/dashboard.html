@@ -1,0 +1,25 @@
+{% extends '0-MainPageSetup.html' %}
+
+
+{% block head %}
+
+<title>Scoreboard</title>
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='Pictures/favicon.png') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/homestyle.css') }}">
+
+{% endblock %}
+
+{% block body %}
+  <h2>Your Dashboard</h2>
+  <p>Welcome back! Here is your food waste overview.</p>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert" style="background-color: #fff3cd; padding: 15px; border: 1px solid #ffeeba; color: #856404; margin-bottom: 20px;">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+{% endblock %}

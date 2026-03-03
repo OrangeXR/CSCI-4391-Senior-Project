@@ -31,6 +31,7 @@ UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "profile_pics")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
+
 # =============
 # Connect to db
 # =============
@@ -38,6 +39,42 @@ def get_db():
     conn = sqlite3.connect("src/instance/inventory.db")
     conn.row_factory = sqlite3.Row
     return conn
+
+# =======================
+# define flag calculation
+# =======================
+from datetime import datetime
+
+def calculate_flags(item):
+    category = item["category"].lower().strip()
+    name = item["name"].lower()
+    opened = int(item.get("opened", 0))
+
+    best_by = datetime.strptime(item["best_by"], "%Y-%m-%d").date()
+    today = datetime.today().date()
+
+    # raw meat categories
+    raw_meat_category = ["meat", "seafood"]
+
+    # perishable categories (fast spoil)
+    perishable_fast = ["meat", "seafood", "dairy", "produce", "prepared"]
+
+    # non-perishable categories (slow spoil)
+    non_perishable = ["grains", "pantry", "snacks", "beverages"]
+
+    # raw meat
+    raw_meat = 1 if category in raw_meat_category or any(x in name for x in ["chicken", "beef", "pork", "turkey", "fish", "shrimp"]) else 0
+
+    # perishable
+    perishable = 1 if category in perishable_fast else 0
+
+    # decomposition
+    decomposition_flag = 1 if perishable and best_by < today else 0
+
+    # donation rules
+    donation_allowed = 0 if opened == 1 or raw_meat == 1 or decomposition_flag == 1 else 1
+
+    return raw_meat, perishable, donation_allowed, decomposition_flag
 
 # ======================
 # Login Required Wrapper
@@ -68,6 +105,25 @@ def home_page():
         current_player=current_player
     )
 
+# =========
+# Dashboard
+# =========
+@app.route("/dashboard")
+def dashboard():
+    # show warning on homepage for foods about to expire in 3 days
+    player = session.get('player_id')
+    expiring_soon = get_expiry_date(player)
+
+    if not player:
+        # if they aren't logged in, send them to the login page
+        return redirect('/login')
+
+    if expiring_soon:
+        item_list = ", ".join(expiring_soon)
+        flash(f"⚠️ Heads up! Your {item_list} will expire in 3 days.", "warning")
+
+    return render_template('dashboard.html')
+
 # =====================
 # User Profile
 # =====================
@@ -81,6 +137,9 @@ def userprofile():
     if request.method == "POST":
         file = request.files.get("profile_picture")
 
+        food_allergies = request.form.get("food_allergies")
+        dietary_needs = request.form.get("dietary_needs")
+        
         if file and file.filename != "":
             filename = secure_filename(file.filename)
             filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
@@ -91,8 +150,12 @@ def userprofile():
                 "UPDATE players SET profile_picture = ? WHERE id = ?",
                 (filename, player_id)
             )
-            db.commit()
 
+            db.execute(
+                "UPDATE players SET food_allergies = ?, dietary_needs = ? WHERE id = ?",
+                (food_allergies, dietary_needs, player_id)
+             )
+        db.commit()
         db.close()
         return redirect(url_for("userprofile"))
 
@@ -177,7 +240,7 @@ def logout():
 @app.route("/inventory",methods=["GET", "POST"])
 @login_required
 def inventory_page():
-    from src.openrouterllm import Ai_Chat   #importing everything from openrouterllm
+    from openrouterllm import Ai_Chat   #importing everything from openrouterllm
     player_id = session["player_id"]
 
     db = get_db()
@@ -189,6 +252,10 @@ def inventory_page():
         "SELECT * FROM inventory WHERE player_id = ? ORDER BY best_by ASC",
         (player_id,)
     ).fetchall()
+
+
+
+    
 
 # =====================
 # Ai integration 
@@ -235,6 +302,8 @@ def inventory_page():
 # =====================
 # Add Item Page
 # =====================
+from unit_conversion import normalize_quantity
+
 @app.route("/add", methods=["GET", "POST"])
 @login_required
 def add_item_page():
@@ -243,33 +312,53 @@ def add_item_page():
     if request.method == "POST":
         db = get_db()
 
-        player_id = request.form["player_id"]
-        name = request.form["name"]
-        category = request.form["category"]
+        name = request.form["name"].lower().strip()
+        category = request.form.get("category", "other")
         quantity = int(request.form["quantity"])
-        unit = request.form["unit"]
-        best_by = request.form["best_by"]
-        price = float(request.form["price"])
-        measurement_type = request.form["measurement_type"]
-        quantity_grams = request.form["quantity_grams"]
-        quantity_ml = request.form["quantity_ml"]
-        purchase_date = request.form["purchase_date"]
-        raw_meat = request.form["raw_meat"]
-        perishable = request.form["perishable"]
-        opened = request.form["opened"]
-        donation_allowed = request.form["donation_allowed"]
-        decomposition_flag = request.form["decomposition_flag"]
+        unit = request.form.get("unit", "each")
+        measurement_type = request.form.get("measurement_type", "count")
+        purchase_date = request.form.get("purchase_date")
+        best_by = request.form.get("best_by")
+        opened = 1 if request.form.get("opened") else 0
+        price = float(request.form.get("price", 0.0))
         status = "active"
 
-        db.execute("""
-            INSERT INTO inventory (player_id, name, category, quantity, unit, measurement_type, quantity_grams, quantity_ml, purchase_date, best_by, raw_meat, perishable, opened, donation_allowed, decomposition_flag, price,  status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (player_id, name, category, quantity, unit, measurement_type, quantity_grams, quantity_ml, purchase_date, best_by, raw_meat, perishable, opened, donation_allowed, decomposition_flag, price,  status)) 
+        # Convert units using your file
+        grams, ml = normalize_quantity(quantity, unit, measurement_type)
+
+        # Calculate flags automatically
+        item_dict = {
+            "name": name,
+            "category": category,
+            "best_by": best_by,
+            "opened": opened
+        }
+
+        raw_meat, perishable, donation_allowed, decomposition_flag = calculate_flags(item_dict)
 
         db.execute("""
-            UPDATE players SET score = score + ?
+            INSERT INTO inventory (
+                player_id, name, category, quantity, unit, measurement_type,
+                quantity_grams, quantity_ml,
+                purchase_date, best_by,
+                raw_meat, perishable, opened,
+                donation_allowed, decomposition_flag,
+                price, status
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            player_id, name, category, quantity, unit, measurement_type,
+            grams, ml,
+            purchase_date, best_by,
+            raw_meat, perishable, opened,
+            donation_allowed, decomposition_flag,
+            price, status
+        ))
+
+        db.execute("""
+            UPDATE players SET score = ROUND(score + ?, 2)
             WHERE id = ?
-        """, (price * quantity, player_id)) # <------ player "points"
+        """, (price * quantity, player_id))
 
         db.commit()
         db.close()
@@ -404,6 +493,15 @@ def scoreboard():
 
     return render_template("ScoreboardPage.html", players=players)
 
+
+
+
+
+# Citations:
+# ----------
+# get_expiry_date & dashboard implemented using a Google Gemini prompt as a guideline: 
+# "I want to make it simple and have it show in text like a notification on the website for the player"
+
 # =========================================================
 # AI Menu
 # =========================================================
@@ -509,9 +607,6 @@ if __name__ == "__main__":
 # for render.com
 # gunicorn app:app
 # ================
-
-
-
 
 
 

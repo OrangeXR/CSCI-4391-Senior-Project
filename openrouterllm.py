@@ -1,8 +1,9 @@
 import requests
 import os
 import sqlite3
+import json
 from dotenv import load_dotenv
-
+from expiry import sort_inventory
 from validator import recipe_validator   #importing everything from validator
 
 
@@ -27,7 +28,7 @@ class Ai_Chat:
         # restricted words/topics, chatbot will not responsd
         self.RESTRICTED_WORDS = ["poop"]
         # db path + other variables
-        self.DB_PATH = os.path.join(os.path.dirname(__file__), "instance", "inventory.db")
+        self.DB_PATH = 'src/instance/inventory.db'
         self.PLAYER_ID = 1 # for testing
         self.MAX_HISTORY = 10 # max number of messages to keep in conversation history to prevent growth
     
@@ -56,22 +57,34 @@ class Ai_Chat:
     def build_inventory_context(self,items):
         if not items:
             return "No food items in inventory."
-    # build a string representation of the inventory items to provide context to the LLM, including quantity and best by date
-    
-        lines = [] 
-        for item in items:
-            qty = f"{item['quantity']} {item['unit']}" if item['quantity'] else "Unknown qty"
-            line = (
-                f"{item['name']} | "
-                f"{qty} | "
-                f"Best by: {item['best_by']} | "
-                f"Opened: {bool(item['opened'])}"
-                )
-            lines.append(line)
+        # build a string representation of the inventory items to provide context to the LLM, including quantity and best by date
+        # get the sorted lists
+        expired, about_to_expire, fresh = sort_inventory(self.PLAYER_ID)
+
+        # start the context
+        lines = ["Here is my current inventory:"]
+
+        # add each category
+        if expired:
+            lines.append("\nEXPIRED (Recommend compost):")
+            for item in expired:
+                lines.append(f"- {item}")
+        if about_to_expire:
+            lines.append("\nABOUT TO EXPIRE (Use within 4 days):")
+            for item in about_to_expire:
+                lines.append(f"- {item}")
+        if fresh:
+            lines.append("\nFRESH (Safe for now):")
+            for item in fresh:
+                lines.append(f"- {item}")
+        
         return "\n".join(lines)
 
-     #Inspired From https://coderivers.org/blog/json-save-python/
-    #Still Needs improvment 
+        # Citations:
+        # ---------
+        # Implemented using a Google Gemini prompt as a guideline:
+        # "and do return like: expired, about_to_expire, fresh"
+
     def save_result_JSON(self, save_recipe_Json, file="saved_recipe.json"):
         try:
             with open(file, "w") as recipe_file:

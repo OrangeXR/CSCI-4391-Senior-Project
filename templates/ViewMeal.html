@@ -1,0 +1,71 @@
+
+{% extends '0-MainPageSetup.html' %}
+
+
+{% block head %}
+
+<title>Binny's Recipe: {{ meal.name }}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/homestyle.css') }}">
+
+{% endblock %}
+
+
+{% block body %}
+
+<div class="welcome1">
+    <h1>Binny Recipe</h1>
+</div>
+
+<table class="kawaii-menu-table">
+    <thead>
+        <tr>
+            <td>
+                <center>
+                    <h1>{{ meal.name }}</h1>
+                </center>
+            </td>
+        </tr>  
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                <center>
+                <p><strong>Created:</strong> {{ meal.created_at }}</p>
+                </center>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <center>
+                    <h3>Ingredients:  </h3>
+                </center>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p>{{ meal.ingredients }}</p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <center>
+                    <h3>Description:  </h3>
+                </center>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p>{{ meal.description }}</p>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<a href="{{ url_for('userprofile') }}">Back to Profile</a>
+
+
+
+{% endblock %}
+
+
+

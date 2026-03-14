@@ -36,7 +36,7 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 # Connect to db
 # =============
 def get_db():
-    conn = sqlite3.connect("instance/inventory.db")
+    conn = sqlite3.connect("src/instance/inventory.db")
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -114,6 +114,18 @@ def dashboard():
     player = session.get('player_id')
     expiring_soon = get_expiry_date(player)
 
+# =============================================================================================================
+# Get a list of saved recipes for the user
+# =============================================================================================================
+    db = get_db()
+    meals = db.execute(
+        "SELECT id, name, created_at FROM meals WHERE player_id = ? ORDER BY created_at DESC",
+        (player,)
+    ).fetchall()
+    db.close()
+# =============================================================================================================
+# =============================================================================================================
+
     if not player:
         # if they aren't logged in, send them to the login page
         return redirect('/login')
@@ -122,7 +134,7 @@ def dashboard():
         item_list = ", ".join(expiring_soon)
         flash(f"⚠️ Heads up! Your {item_list} will expire in 3 days.", "warning")
 
-    return render_template('dashboard.html')
+    return render_template('dashboard.html', player=player, meals=meals)
 
 # =====================
 # User Profile
@@ -151,10 +163,10 @@ def userprofile():
                 (filename, player_id)
             )
 
-            db.execute(
-                "UPDATE players SET food_allergies = ?, dietary_needs = ? WHERE id = ?",
-                (food_allergies, dietary_needs, player_id)
-             )
+        db.execute(
+            "UPDATE players SET food_allergies = ?, dietary_needs = ? WHERE id = ?",
+            (food_allergies, dietary_needs, player_id)
+        )
         db.commit()
         db.close()
         return redirect(url_for("userprofile"))
@@ -182,6 +194,8 @@ def register():
         name = request.form["name"]
         username = request.form["username"]
         password = request.form["password"]
+        food_allergies = request.form.get("food_allergies", "")
+        dietary_needs = request.form.get("dietary_needs", "")
         file = request.files["profile_picture"]
 
         password_hash = generate_password_hash(password)
@@ -193,9 +207,9 @@ def register():
 
         db = get_db()
         db.execute("""
-            INSERT INTO players (name, username, password_hash, profile_picture)
-            VALUES (?, ?, ?, ?)
-        """, (name, username, password_hash, filename))
+            INSERT INTO players (name, username, password_hash, profile_picture, food_allergies, dietary_needs)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (name, username, password_hash, filename, food_allergies, dietary_needs))
         db.commit()
         db.close()
 
@@ -313,6 +327,11 @@ def add_item_page():
         db = get_db()
 
         name = request.form["name"].lower().strip()
+        # basic check to further prevent plural input for inventory item names
+        if name.endswith(("s", "es", "ies")):
+            flash("Plural ingredient names are not allowed. Use singular form.")
+            return redirect(url_for("add_item"))
+        
         category = request.form.get("category", "other")
         quantity = int(request.form["quantity"])
         unit = request.form.get("unit", "each")
@@ -494,12 +513,33 @@ def scoreboard():
     return render_template("ScoreboardPage.html", players=players)
 
 
+# ==================================================================================================
+# Template for Saved Meal Recipe
+# ==================================================================================================
+@app.route("/meal/<int:meal_id>")
+@login_required
+def view_meal(meal_id):
+    db = get_db()
+    meal = db.execute(
+        "SELECT * FROM meals WHERE id = ? AND player_id = ?",
+        (meal_id, session["player_id"])
+    ).fetchone()
+    db.close()
+
+    if meal is None:
+        return "Meal not found", 404
+
+    return render_template("ViewMeal.html", meal=meal)
+
+
+
+
 
 
 
 # Citations:
 # ----------
-# get_expiry_date & dashboard implemented using a Google Gemini prompt as a guideline: 
+# dashboard implemented using a Google Gemini prompt as a guideline: 
 # "I want to make it simple and have it show in text like a notification on the website for the player"
 
 # =========================================================
@@ -607,7 +647,6 @@ if __name__ == "__main__":
 # for render.com
 # gunicorn app:app
 # ================
-
 
 
 

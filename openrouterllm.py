@@ -6,17 +6,13 @@ from dotenv import load_dotenv
 from expiry import sort_inventory
 from validator import recipe_validator   #importing everything from validator
 
-
-
 class Ai_Chat: 
     # IMPORTANT
     #  I sent the .env file with the api key  in the chat, but I will not be including it in the code repository for security reasons and github gets whiny about it lol
     #  Just drop that .env file in the same directory as this script and it should work fine
     #  I have that .env file added to .gitignore so it wont be included in the repo
     #  thanks guys :3
-    # 
-    
-    
+
     def __init__(self):
         load_dotenv()
         # load environment variables from .env file
@@ -28,7 +24,7 @@ class Ai_Chat:
         # restricted words/topics, chatbot will not responsd
         self.RESTRICTED_WORDS = ["poop"]
         # db path + other variables
-        self.DB_PATH = 'instance/inventory.db'
+        self.DB_PATH = 'src/instance/inventory.db'
         self.PLAYER_ID = 1 # for testing
         self.MAX_HISTORY = 10 # max number of messages to keep in conversation history to prevent growth
     
@@ -43,7 +39,7 @@ class Ai_Chat:
         cursor = conn.cursor()
         
         cursor.execute(""" 
-                       SELECT name, category, quantity, unit,
+                       SELECT name, category, quantity, unit, measurement_type,
                        quantity_grams, quantity_ml,
                        best_by, opened
                        FROM inventory
@@ -57,26 +53,34 @@ class Ai_Chat:
     def build_inventory_context(self,items):
         if not items:
             return "No food items in inventory."
-        # build a string representation of the inventory items to provide context to the LLM, including quantity and best by date
-        # get the sorted lists
+        # get sorted lists
         expired, about_to_expire, fresh = sort_inventory(self.PLAYER_ID)
-
         # start the context
         lines = ["Here is my current inventory:"]
+
+        # Helper function to grab the math from the database 
+        def get_item_math(item_name):
+            for db_item in items:
+                if db_item.get('name', '').lower() == item_name.lower():
+                    qty = db_item.get('quantity', 0)
+                    unit = db_item.get('unit', 'each')
+                    m_type = db_item.get('measurement_type', 'count')
+                    return f"- {item_name}: {qty} {unit} (measurement_type: {m_type})"
+            return f"- {item_name}" # Fallback if not found
 
         # add each category
         if expired:
             lines.append("\nEXPIRED (Recommend compost):")
             for item in expired:
-                lines.append(f"- {item}")
+                lines.append(get_item_math(item))
         if about_to_expire:
             lines.append("\nABOUT TO EXPIRE (Use within 4 days):")
             for item in about_to_expire:
-                lines.append(f"- {item}")
+                lines.append(get_item_math(item))
         if fresh:
             lines.append("\nFRESH (Safe for now):")
             for item in fresh:
-                lines.append(f"- {item}")
+                lines.append(get_item_math(item))
         
         return "\n".join(lines)
 
@@ -85,12 +89,15 @@ class Ai_Chat:
         # Implemented using a Google Gemini prompt as a guideline:
         # "and do return like: expired, about_to_expire, fresh"
 
-    def save_result_JSON(self, save_recipe_Json, file="saved_recipe.json"):
-        try:
+
+        #Inspired From https://coderivers.org/blog/json-save-python/
+        #Still Needs improvment
+   # def save_result_JSON(self, save_recipe_Json, file="saved_recipe.json"):
+        '''try:
             with open(file, "w") as recipe_file:
                 json.dump(save_recipe_Json, recipe_file)
         except (IOError, TypeError) as e:
-            print(f"Error occurred: {e}")
+            print(f"Error occurred: {e}")'''
             
 # get llm response functions
     def getLLMResponse(self,messages):
@@ -133,9 +140,24 @@ class Ai_Chat:
                  "- If quantity data is missing, state assumptions clearly.\n"
                  "Keep responses concise but practical and clear.\n"
                  "Do not give food safety recommendations at all. Anything involving food safety, respond 'Sorry, I don't have that info.'\n"
-                "Format all responses as clean plain text. Avoid tables, table-like structures, columns, or spreadsheet-style formatting. Use paragraphs or bullet points instead.")
+                "CRITICAL RULES:\n"
+                 "1. You MUST output your response STRICTLY as a JSON object. No conversational text outside the JSON.\n"
+                 "2. DO NOT USED EXPIRED FOOD: You are forbidden from using expired food in recipes.\n"
+                 "3. MATCH UNITS EXACTLY: You must use the exact `measurement_type` and `unit` provided in the inventory list.\n"
+                 "   - If an item is listed in 'g' or 'lbs' (weight), you CANNOT use cups, tbsp, or volume measurements. You MUST request it in grams or lbs.\n"
+                 "   - If an item is listed as 'count', you MUST use 'count' (e.g., do not ask for 15 oz of canned beans if it says 1 count).\n"
+                 "   - If an item is listed in 'ml' (volume), use ml, cups, or tbsp.\n"
+                 "4. Use this exact format:\n"
+                 "{\n"
+                 '  "recipe_text": "Your natural conversational text, recipe steps, and tips go here...",\n'
+                 '  "ingredients_used": [\n'
+                 '    {"name": "rice", "quantity": 200, "unit": "g", "measurement_type": "weight"}\n'
+                 "  ]\n"
+                 "}\n"
+             )
             }]
-        
+        call_validator = recipe_validator()
+
         while True:
             user_input = input("You: ")
             if user_input.lower() in ["quit", "exit"]:
@@ -159,21 +181,32 @@ class Ai_Chat:
              # limit conversation history to last 10 messages to stay within token limits
             messages[:] = messages[-self.MAX_HISTORY:]
 
-            response = self.getLLMResponse(messages) 
-
-            #Call save_result_JSON
-            recipe={
-                "response":response,
-                "player_Id":self.PLAYER_ID    
-            }
-            self.save_result_JSON(recipe)
-            
-            call=recipe_validator()
-            call.read_from_JSON("saved_recipe.json")
- 
-            print(f"LLM: {response}\n") # 
-
-            messages.append({"role": "assistant", "content": response})
+            MAX_RETRIES = 1 # retries for recipe generation if validation fails, can adjust as needed
+            for attempt in range(MAX_RETRIES + 1):
+                raw_response = self.getLLMResponse(messages) 
+                
+                # send recipe to validator
+                is_valid, validation_msg = call_validator.validate_AI_recipe(raw_response, self.PLAYER_ID)
+                
+                if is_valid:
+                    # pass, output recipe to user
+                    print(f"\nLLM: {validation_msg}\n") 
+                    
+                    # save context so the llm remembers what it just said
+                    messages.append({"role": "assistant", "content": validation_msg})
+                    
+                    break # break out of the retry loop
+                    
+                else:
+                    # if fail:
+                    if attempt < MAX_RETRIES:
+                        print(f"\n[System: Recipe failed validation: {validation_msg}. Asking AI to regenerate and scale down...]\n")
+                        # add the failure to the context and loop again to regenerate
+                        messages.append({"role": "assistant", "content": raw_response})
+                        messages.append({"role": "user", "content": f"Your previous recipe failed validation because: {validation_msg}. Please rewrite the recipe to fix this (e.g., reduce servings or omit the ingredient) and output valid JSON again."})
+                    else:
+                        print(f"\nLLM: I tried to make a recipe, but we don't have enough ingredients. {validation_msg}\n")
+                        messages.append({"role": "assistant", "content": f"Failed: {validation_msg}"})
             
 if __name__ == "__main__":
     Ai_bot = Ai_Chat()

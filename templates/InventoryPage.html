@@ -10,6 +10,7 @@
 {% block body %}
 <div class="welcome1">
     <h1>Food Inventory</h1>
+    {% include 'Menu.html' %}    
 </div>
 
 <div class="body">
@@ -112,14 +113,7 @@
 
     <!-- ====================================== -->
     <br /><br />
-    <div class="images">
-        <a href="javascript:history.back()">
-            <img src="{{ url_for('static', filename='Pictures/BinnyBack.png') }}" alt="bot" class="binnybot">
-        </a>
-        <a href="/">
-            <img src="{{ url_for('static', filename='Pictures/BinnyHome.png') }}" alt="homebot" class="binnyhome">
-        </a>
-    </div>
+
 </div>
 
 

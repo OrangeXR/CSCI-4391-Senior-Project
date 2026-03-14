@@ -3,15 +3,18 @@
 
 {% block head %}
 
-<title>Scoreboard</title>
+<title>User Dashboard</title>
 <link rel="icon" type="image/png" href="{{ url_for('static', filename='Pictures/favicon.png') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/homestyle.css') }}">
 
 {% endblock %}
 
 {% block body %}
-  <h2>Your Dashboard</h2>
-  <p>Welcome back! Here is your food waste overview.</p>
+  <div class="welcome1">
+    <h1>Your Dashboard</h1>
+    {% include 'Menu.html' %}
+    <p>Welcome back! Here is your food waste overview.</p>
+  </div>
 
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}

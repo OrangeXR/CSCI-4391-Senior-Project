@@ -11,6 +11,7 @@
 {% block body %}
 <div class="welcome1">
     <h1>Binny and Bloom.com</h1>
+    {% include 'Menu.html' %}
 </div>
 
 <div class="body">
@@ -25,27 +26,6 @@
 
     <p class="text">Player: <strong>{{ current_player.name }}</strong></p>
     <p class="text">Score: <strong>{{ current_player.score }}</strong></p>
-
-    <center>
-        <a href="{{ url_for('inventory_page') }}" class="text">
-            <button type="submit" class="text">Check Inventory</button>
-        </a>
-        <a href="{{ url_for('add_item_page') }}" class="text">
-            <button type="submit" class="text">Add to Inventory</button>
-        </a>
-        <a href="{{ url_for('userprofile') }}" class="text">
-            <button type="submit" class="text">User Profile</button>
-        </a>
-        <a href="{{ url_for('scoreboard') }}" class="text">
-             <button class="text">Scoreboard</button>
-        </a>
-        <a href="{{ url_for('dashboard') }}" class="text">
-            <button type="submit" class="text">Dashboard</button>
-        </a>
-        <a href="{{ url_for('logout') }}" class="text">
-            <button type="submit" class="text">Logout</button>
-        </a>
-    </center>
 
 </div>
 

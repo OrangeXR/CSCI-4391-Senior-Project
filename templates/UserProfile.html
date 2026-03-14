@@ -14,6 +14,7 @@
 {% block body %}
 <div class="welcome1">
     <h1>Update Profile</h1>
+    {% include 'Menu.html' %}
     <p class="text">Edit and update your profile.</p>
 </div>
 
@@ -68,11 +69,7 @@
            </tr>
         </table>
     </center>
-    <div class="images">
-        <a href="/">
-            <img src="{{ url_for('static', filename='Pictures/BinnyHome.png') }}" alt="homebot" class="binnyhome">
-        </a>
-    </div>
+
 </div>
 
 

@@ -11,6 +11,7 @@
 {% block body %}
 <div class="welcome1">
     <h1>Add Item</h1>
+    {% include 'Menu.html' %}    
 </div>
 
 
@@ -113,14 +114,7 @@
 <!-- ======================== -->
 
 <br /><br />
-<div class="images">
-    <a href="javascript:history.back()">
-        <img src="{{ url_for('static', filename='Pictures/BinnyBack.png') }}" alt="bot" class="binnybot">
-    </a>
-    <a href="/">
-        <img src="{{ url_for('static', filename='Pictures/BinnyHome.png') }}" alt="homebot" class="binnyhome">
-    </a>
-</div>
+
 <!--- pop up error message for attempted plural input-->
 <script>
 document.querySelector("form").addEventListener("submit", function(e) {

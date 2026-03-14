@@ -27,6 +27,7 @@ OPENROUTER_API_KEY=""
 
 
 
+
 UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "profile_pics")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
@@ -512,9 +513,49 @@ def scoreboard():
     return render_template("ScoreboardPage.html", players=players)
 
 
+
 # ==================================================================================================
-# Template for Saved Meal Recipe
+# Saving Meal Recipe
 # ==================================================================================================
+@app.route("/save_meal", methods=["POST"])
+@login_required
+def save_meal():
+    player_id = session["player_id"]
+    recipe_text = request.form.get("recipe_text", "").strip()
+    
+    # =============================
+    # Parse recipe
+    # =============================
+    lines = recipe_text.split("\n")
+    name = lines[0].strip() if lines else "Untitled Recipe"
+    ingredients = "\n".join(
+        [line.strip() for line in lines if "-" in line or "•" in line]
+    )
+    description = recipe_text
+
+    # ========================================================================
+    # Insert to database
+    # ========================================================================
+    db = get_db()
+
+    try:
+        db.execute("""
+            INSERT INTO meals (player_id, name, ingredients, description)
+            VALUES (?, ?, ?, ?)
+        """, (player_id, name, ingredients, description))
+
+        db.commit()
+    
+    finally:
+        db.close()
+    # ==========================================================================
+    flash("Recipe saved!", "success")
+    return redirect(url_for("dashboard"))
+# ==================================================================================================
+
+# ==========================================================================================
+# View Meal Recipe
+# ==========================================================================================
 @app.route("/meal/<int:meal_id>")
 @login_required
 def view_meal(meal_id):
@@ -529,7 +570,6 @@ def view_meal(meal_id):
         return "Meal not found", 404
 
     return render_template("ViewMeal.html", meal=meal)
-
 
 
 

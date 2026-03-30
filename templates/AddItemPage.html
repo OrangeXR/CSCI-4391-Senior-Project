@@ -1,0 +1,136 @@
+{% extends '0-MainPageSetup.html' %}
+
+{% block head %}
+<title>Add Item</title>
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='Pictures/favicon.png') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/homestyle.css') }}">
+{% endblock %}
+
+
+
+{% block body %}
+<div class="welcome1">
+    <h1>Add Item</h1>
+    {% include 'Menu.html' %}    
+</div>
+
+
+<!-- ======================
+     Add Items to Inventory
+     ====================== -->
+<form method="POST" class="kawaii-table">
+    <!-- Keep player_id in the form so we know who owns the item -->
+    <input type="hidden" name="player_id" value="{{ current_player.id }}">
+
+    <label for="name">Name</label>
+    <!--input name="name" placeholder="Item Name" required-->
+    <!-- added pattern attribute to restrict plural input -->
+    <input 
+        type="text"
+        id = "name"
+        name = "name"
+        required
+        pattern="[A-Za-z\s]+"
+        title="Enter ingredient name in singular form (e.g, 'egg' 'tomato' 'carrot')"
+    >
+
+    <label for="category">Category</label>
+    <select name="category">
+        <option value="meat" selected>Meat</option>
+        <option value="seafood">Seafood</option>
+        <option value="dairy">Dairy</option>
+        <option value="produce" >Produce</option>
+        <option value="grains">Grains</option>
+        <option value="pantry" > Pantry(includes canned)</option>
+        <option value="frozen">Frozen</option>
+        <option value="snack" selected>snack</option>
+        <option value="beverages">Beverages(non-dairy)</option>
+    </select>
+    
+    <label for="quantity">Quantity</label>
+    <input name="quantity" type="number" min="1" placeholder="Item Quantity" required>
+
+
+    <label for="unit">Unit</label>
+    <select name="unit">
+        <optgroup label="Weight">
+            <option value="g">Grams (g)</option>
+            <option value="kg">Kilograms (kg)</option>
+            <option value="lb">Pounds (lb)</option>
+            <option value="oz">Ounces (oz)</option>
+        </optgroup>
+
+        <optgroup label="Volume">
+            <option value="ml">Milliliters (ml)</option>
+            <option value="fl_oz">Fluid Ounces (fl oz)</option>
+            <option value="cup">Cup</option>
+            <option value="tbsp">Tablespoon</option>
+            <option value="tsp">Teaspoon</option>
+            <option value="liter">Liter (L)</option>
+            <option value="gallon"> Gallon (gal)</option>
+            <option value="half_gallon"> Half Gallon</option>
+        </optgroup>
+
+        <optgroup label="Count">
+            <option value="each">Each</option>
+        </optgroup>
+    </select>
+     
+    <label for="measurement_type">Measurement Type</label>
+    <select name="measurement_type">
+        <option value="weight"> Weight </option>
+        <option value="volume">Volume</option>
+        <option value="count">Count</option>
+    </select>     
+
+            
+    <label for="purchase_date">Purchase Date</label>
+    <input name="purchase_date" type="date" placeholder="Purchase Date" required>
+    
+    <label for="best_by">Best By</label>
+    <input name="best_by" type="date" placeholder="Best by" required>
+    
+   
+    <label for="opened?">Opened</label>
+    <input type="checkbox" name="opened" value="1">
+    
+  
+    <label for="price">Price per Item</label>
+    <input name="price" type="number" step="0.01" min="0" placeholder="Price per item" required>
+  
+<!-- Hid this input to not show this field when adding an item and always be set to "active" -->
+    <input type="hidden" name="status" value="active">
+<!--
+    <label for="status">Status</label>
+    <select name="status">
+        <option value="active" selected>Active</option>
+        <option value="inactive">Inactive</option>
+    </select>
+-->
+
+    <button type="submit" class="text">Add</button>
+</form>
+
+<!-- ======================== -->
+
+<br /><br />
+
+<!--- pop up error message for attempted plural input-->
+<script>
+document.querySelector("form").addEventListener("submit", function(e) {
+
+    let name = document.getElementById("name").value.trim().toLowerCase();
+
+    if (name.endsWith("s")) {
+        alert("Plural ingredient names are not allowed. Please use singular (example: egg instead of eggs).");
+        e.preventDefault();
+    }
+
+});
+</script>
+
+
+{% endblock %}
+
+
+

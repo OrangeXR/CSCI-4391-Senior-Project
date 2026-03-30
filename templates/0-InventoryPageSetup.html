@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='Pictures/favicon.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mainstyle.css') }}">
+
+    {% block head %}
+    <title>Inventory</title>
+    {% endblock %}
+</head>
+
+<body>
+    {% block body %}{% endblock %}
+
+    <!-- ========== -->
+
+
+<div class="Tree-background">
+
+    <!-- ===========
+     Bottom trees
+     =========== -->
+
+<div class="trees"></div>
+<div class="trees" style="width: 350px; height: 300px; left: 10px;"></div>
+<div class="trees" style="width: 350px; height: 300px; left: 0px;"></div>
+<div class="trees"></div>
+<div class="trees" style="width: 350px; height: 300px; left: 10px;"></div>
+<div class="trees" style="width: 350px; height: 300px; left: 0px;"></div>
+<div class="trees"></div>
+<div class="trees" style="width: 350px; height: 300px; left: 100px;"></div>
+<div class="trees" style="width: 350px; height: 300px; left: 200px;"></div>
+<div class="trees" style="width: 350px; height: 500px; left: 300px;"></div>
+
+</div>
+
+<div class="grass-container"></div>
+<div class="binny-Tree"></div>
+
+
+
+
+</body>
+</html>

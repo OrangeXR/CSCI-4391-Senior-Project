@@ -742,3 +742,22 @@ body {
 
 }
 
+/* ==========================
+   Floating Chatbox for AI
+   ========================== */
+
+.floating-chatbox {
+    background: #ecbe8f;
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 9999;
+
+    /* Optional styling */
+    width: 300px;
+}
+
+.floating-chatbox .kawaii-table {
+    margin: 0;
+    width: 100%;
+}

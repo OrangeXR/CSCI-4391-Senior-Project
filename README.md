@@ -201,3 +201,7 @@ def inventory_page():
     from src.openrouterllm import Ai_Chat   #importing everything from openrouterllm  #<=========== this one line
     player_id = session["player_id"]
 
+
+
+OpenRouterLLM.py
+Line27  remove src for Render Site        self.DB_PATH = 'instance/inventory.db'

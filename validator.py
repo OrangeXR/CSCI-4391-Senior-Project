@@ -3,6 +3,43 @@ import json
 from unit_conversion import normalize_quantity 
 from expiry import sort_inventory
 
+# adding ingredient matching - NEW
+# =====================================================================
+
+def normalizeIngredient(name):
+    name = name.lower().strip() # lowercase and trim whitespace
+
+    # remove pluralization
+    if name.endswith("es"):
+        name = name[:-2]
+    elif name.endswith("s"):
+        name = name[:-1]
+    
+    return name
+
+def ingredients_match(req_name, inv_name):
+    req_words = req_name.split() 
+    inv_words = inv_name.split()
+
+    # exact match
+    if req_name == inv_name:
+        return True
+
+    # generic protein matching
+    proteins = ["chicken", "beef", "pork", "fish", "turkey"]
+
+    for protein in proteins:
+        if protein in req_words and protein in inv_words:
+            return True
+
+    # fallback partial match
+    if req_name in inv_name or inv_name in req_name:
+        return True
+
+    return False
+
+# =====================================================================
+
 class recipe_validator:
     def __init__(self):
         self.DB_PATH = 'src/instance/inventory.db'
@@ -61,10 +98,23 @@ class recipe_validator:
         inv_dict = {}
         for item in inventory:
             name = item['name'].lower()
-            if name not in inv_dict:
+            if name not in inv_dict: 
+                # =====================================================================
+                # new block to ensure we have normalized grams/ml values for all inventory items, even if they were not precomputed when added to the pantry
                 inv_dict[name] = {'grams': 0.0, 'ml': 0.0, 'count': 0.0}
-            inv_dict[name]['grams'] += float(item.get('quantity_grams') or 0.0)
-            inv_dict[name]['ml'] += float(item.get('quantity_ml') or 0.0)
+                grams = item.get('quantity_grams')
+                ml = item.get('quantity_ml')
+
+                # If normalized values are missing, compute them
+                if grams is None and ml is None:
+                    grams, ml = normalize_quantity(
+                        float(item.get('quantity') or 0.0),
+                        item.get('unit', ''),
+                        item.get('measurement_type', 'count')
+                    )
+                # =====================================================================
+                inv_dict[name]['grams'] += float(grams or 0.0)
+                inv_dict[name]['ml'] += float(ml or 0.0)
             
             if item.get('measurement_type') == 'count':
                 inv_dict[name]['count'] += float(item.get('quantity') or 0.0)
@@ -108,18 +158,18 @@ class recipe_validator:
             # exists in pantry, fuzzy match
             matched_inv = None
             for inv_name in inv_dict.keys():
-                if req_name in inv_name or inv_name in req_name:
+                if ingredients_match(req_name, inv_name):
                     matched_inv = inv_dict[inv_name]
                     print(f"      * Found match in pantry: '{inv_name}'")
                     break
-                    
+
             if not matched_inv:
                 print(f"FAILED: '{req_name}' not found in pantry.")
                 return False, f"Ingredient '{req_name}' is not in the pantry."
-            
-            # convert units to grams/ml/count as needed for comparison
+
             try:
                 req_grams, req_ml = normalize_quantity(req_qty, req_unit, req_type)
+
             except Exception as e:
                 print(f" Warning: normalize_quantity threw an error: {e}. Defaulting to 0.0")
                 req_grams, req_ml = 0.0, 0.0

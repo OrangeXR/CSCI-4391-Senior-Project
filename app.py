@@ -20,7 +20,8 @@ load_dotenv()  # Load .env file
 
 
 
-OPENROUTER_API_KEY=""
+#OPENROUTER_API_KEY=""
+OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY") #============== for render 
 #print("DEBUG — OPENROUTER_API_KEY =", repr(OPENROUTER_API_KEY)) # Makes sure the correct key is being sent out
 
 
@@ -254,7 +255,7 @@ def logout():
 @app.route("/inventory",methods=["GET", "POST"])
 @login_required
 def inventory_page():
-    from openrouterllm import Ai_Chat   #importing everything from openrouterllm
+    from src.openrouterllm import Ai_Chat   #importing everything from openrouterllm
     player_id = session["player_id"]
 
     db = get_db()

@@ -11,7 +11,7 @@ from validator import recipe_validator   #importing everything from validator
 # open db connection
 # ==================
 def get_db():
-    conn = sqlite3.connect("src/Instance/Inventory.db")
+    conn = sqlite3.connect("src/instance/inventory.db")
     conn.row_factory = sqlite3.Row
     return conn
 

@@ -24,7 +24,7 @@ class Ai_Chat:
         # restricted words/topics, chatbot will not responsd
         self.RESTRICTED_WORDS = ["poop"]
         # db path + other variables
-        self.DB_PATH = 'instance/inventory.db'
+        self.DB_PATH = 'src/instance/inventory.db'
         self.PLAYER_ID = 1 # for testing
         self.MAX_HISTORY = 10 # max number of messages to keep in conversation history to prevent growth
     

@@ -76,8 +76,23 @@ def get_inventory(player_id):
         (player_id,)
     ).fetchall()
     db.close()
-    return (items)
+#    return (items) # no longer needed with table being printed in function
 
+    items = sorted(items, key=lambda item: item["name"].lower())
+
+    print("\n========================= Inventory =========================")
+
+    # Labels for inventory table columns
+    print(f"{'Name'.ljust(30)} {'Quantity'.ljust(8)} {'Unit'.ljust(10)} {'Best By'}")
+    print("-" * 61)
+
+    for item in items:
+        print(
+            f"{item['name'].ljust(30)} "
+            f"{str(item['quantity']).ljust(8)} "
+            f"{item['unit'].ljust(10)} "
+            f"{item['best_by']}"
+        )
 # =====================
 # get items by date
 # =====================
@@ -94,18 +109,27 @@ def get_inventory_by_date(player_id):
     ).fetchall()
     db.close()
 
-    print("\n=== Foods and Best-By Dates ===")
+    print("\n================= Inventory by Best-By Dates ================")
     if not items:
         print("No active inventory items found.")
         return
+    
+    # Labels for inventory table columns
+    print(f"{'Name'.ljust(30)} {'Quantity'.ljust(8)} {'Unit'.ljust(10)} {'Best By'}")
+    print("-" * 61)
+
 
     for item in items:
         name = item["name"]
-        qty = item["quantity"]
+        quantity = str(item["quantity"])
         unit = item["unit"]
         best_by = item["best_by"] if item["best_by"] else "No date"
 
-        print(f"- {name} ({qty} {unit}) — Best by: {best_by}")
+        # Table printout with db values
+        print(
+            f"{name.ljust(30)} " f"{quantity.rjust(8)} " f"{unit.ljust(10)} " f"{best_by}" 
+        )
+
 
 
 # ================================================================================================================================
@@ -131,7 +155,7 @@ class Ai_Chat:
         self.RESTRICTED_WORDS = ["poop"]
         # db path + other variables
         self.DB_PATH = 'src/instance/inventory.db'
-        self.PLAYER_ID = 1 # for testing
+        self.PLAYER_ID = player_id #1 # for testing
         self.MAX_HISTORY = 10 # max number of messages to keep in conversation history to prevent growth
     
     # DB setup
@@ -345,10 +369,7 @@ def main():
         choice = input("\nChoose an option: ")
 # =====================================================================================  1. Get User Inventory
         if choice == "1":
-            items = get_inventory(player_id)
-            print("\nInventory:")
-            for item in items:
-                print(f"- {item['name']} ({item['quantity']} {item['unit']})")
+            get_inventory(player_id)
 # =====================================================================================  2. Get/sort inventory by date   
         elif choice == "2":
             get_inventory_by_date(player_id)

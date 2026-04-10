@@ -24,9 +24,16 @@ class Ai_Chat:
         # restricted words/topics, chatbot will not responsd
         self.RESTRICTED_WORDS = ["poop"]
         # db path + other variables
-        self.DB_PATH = 'instance/inventory.db'
+        self.DB_PATH = 'src/instance/inventory.db'
         self.PLAYER_ID = 1 # for testing
         self.MAX_HISTORY = 10 # max number of messages to keep in conversation history to prevent growth
+        self.Cook_WORDS = ["recipe", "cook", "cooking", "make", "prepare", "fry",
+                           "grill", "roast", "saute", "steam", "boil", "air fry",
+                           "meal", "dish", "food idea", "what can i make", "what should i cook",
+                           "how to make", "how do i cook", "instructions", "steps",
+                           "lunch idea", "dinner idea", "breakfast idea", "snack idea",
+                           "meal prep", "quick meal", "easy recipe", "simple recipe"
+                           ]
     
     # DB setup
     def get_db(self): # function to connect to the database
@@ -69,10 +76,6 @@ class Ai_Chat:
             return f"- {item_name}" # Fallback if not found
 
         # add each category
-        if expired:
-            lines.append("\nEXPIRED (Recommend compost):")
-            for item in expired:
-                lines.append(get_item_math(item))
         if about_to_expire:
             lines.append("\nABOUT TO EXPIRE (Use within 4 days):")
             for item in about_to_expire:
@@ -81,6 +84,10 @@ class Ai_Chat:
             lines.append("\nFRESH (Safe for now):")
             for item in fresh:
                 lines.append(get_item_math(item))
+        if expired:
+            lines.append("\nEXPIRED (Recommend compost):")
+            for item in expired:
+                lines.append(get_item_math(item))  
         
         return "\n".join(lines)
 
@@ -128,34 +135,40 @@ class Ai_Chat:
         print("Welcome! The model is Trinity Large Preview (free). Type 'quit' to exit.\n")
         # this is where the chatbot will be constrained
         messages = [
-            { "role": "system", 
-             "content": (
-                 "You are a helpful, eco-conscious Food waste reducer\n"
-                 "Only use the inventory provided to you.\n"
-                 "When suggesting recipes or meals:\n"
-                 "- Be specific and precise with ingredient quantities.\n"
-                 "- Use realistic measurements (grams, ml, tbsp, cups, etc.).\n"
-                 "- Respect the available inventory amounts.\n"
-                 "- Do not suggest quantities that exceed what is available.\n"
-                 "- If quantity data is missing, state assumptions clearly.\n"
-                 "Keep responses concise but practical and clear.\n"
-                 "Do not give food safety recommendations at all. Anything involving food safety, respond 'Sorry, I don't have that info.'\n"
-                "CRITICAL RULES:\n"
-                 "1. You MUST output your response STRICTLY as a JSON object. No conversational text outside the JSON.\n"
-                 "2. DO NOT USED EXPIRED FOOD: You are forbidden from using expired food in recipes.\n"
-                 "3. MATCH UNITS EXACTLY: You must use the exact `measurement_type` and `unit` provided in the inventory list.\n"
-                 "   - If an item is listed in 'g' or 'lbs' (weight), you CANNOT use cups, tbsp, or volume measurements. You MUST request it in grams or lbs.\n"
-                 "   - If an item is listed as 'count', you MUST use 'count' (e.g., do not ask for 15 oz of canned beans if it says 1 count).\n"
-                 "   - If an item is listed in 'ml' (volume), use ml, cups, or tbsp.\n"
-                 "4. Use this exact format:\n"
-                 "{\n"
-                 '  "recipe_text": "Your natural conversational text, recipe steps, and tips go here...",\n'
-                 '  "ingredients_used": [\n'
-                 '    {"name": "rice", "quantity": 200, "unit": "g", "measurement_type": "weight"}\n'
-                 "  ]\n"
-                 "}\n"
-             )
-            }]
+            {
+                "role": "system",
+                "content": (
+                    "## ROLE\n"
+                    "You are an eco-conscious Food Waste Reducer. Your goal is to create recipes "
+                    "using ONLY provided inventory, prioritizing items marked [ABOUT TO EXPIRE].\n\n"
+                    
+                    "## CONSTRAINTS\n"
+                    "- ONLY use provided inventory. Respect available quantities.\n"
+                    "- FORBIDDEN: Do not use expired food. Do not provide food safety advice.\n"
+                    "- If asked about food safety, respond: 'Sorry, I don't have that info.'\n"
+                    "- PRIORITIZE: Use 2-3 [ABOUT TO EXPIRE] items in every recipe to reduce waste.\n\n"
+                    
+                    "## MEASUREMENT LOGIC\n"
+                    "You must match units EXACTLY as provided in the inventory list:\n"
+                    "1. WEIGHT (g, lbs): Do NOT convert to volume. Use the exact weight unit.\n"
+                    "2. COUNT: Use 'count' only (e.g., '1 count' of onion, not '100g').\n"
+                    "3. VOLUME (ml): You may use ml, cups, or tbsp.\n\n"
+                    
+                    "## OUTPUT FORMAT\n"
+                    "1. CHAT: If the user is just greeting or chatting, respond with friendly, concise text.\n"
+                    "2. RECIPE: If the user asks for a recipe or cooking advice, you MUST output "
+                    "STRICTLY a JSON object. No conversational filler before or after the JSON.\n\n"
+                    
+                    "### JSON SCHEMA\n"
+                    "{\n"
+                    '  "recipe_text": "Detailed cooking instructions and tips.",\n'
+                    '  "ingredients_used": [\n'
+                    '    {"name": "string", "quantity": number, "unit": "string", "measurement_type": "string"}\n'
+                    '  ]\n'
+                    "}"
+                )
+            }
+        ]
         call_validator = recipe_validator()
 
         while True:
@@ -185,28 +198,36 @@ class Ai_Chat:
             for attempt in range(MAX_RETRIES + 1):
                 raw_response = self.getLLMResponse(messages) 
                 
-                # send recipe to validator
-                is_valid, validation_msg = call_validator.validate_AI_recipe(raw_response, self.PLAYER_ID)
+                #Check if user wants recipe
+                user_lower = user_input.lower()
                 
-                if is_valid:
-                    # pass, output recipe to user
-                    print(f"\nLLM: {validation_msg}\n") 
+                if any(word in user_lower for word in self.Cook_WORDS):
+                    # send recipe to validator
+                    is_valid, validation_msg = call_validator.validate_AI_recipe(raw_response, self.PLAYER_ID)
                     
-                    # save context so the llm remembers what it just said
-                    messages.append({"role": "assistant", "content": validation_msg})
-                    
-                    break # break out of the retry loop
-                    
-                else:
-                    # if fail:
-                    if attempt < MAX_RETRIES:
-                        print(f"\n[System: Recipe failed validation: {validation_msg}. Asking AI to regenerate and scale down...]\n")
-                        # add the failure to the context and loop again to regenerate
-                        messages.append({"role": "assistant", "content": raw_response})
-                        messages.append({"role": "user", "content": f"Your previous recipe failed validation because: {validation_msg}. Please rewrite the recipe to fix this (e.g., reduce servings or omit the ingredient) and output valid JSON again."})
+                    if is_valid:
+                        # pass, output recipe to user
+                        print(f"\nLLM: {validation_msg}\n") 
+                        # save context so the llm remembers what it just said
+                        messages.append({"role": "assistant", "content": validation_msg})
+                        
+                        break # break out of the retry loop
                     else:
-                        print(f"\nLLM: I tried to make a recipe, but we don't have enough ingredients. {validation_msg}\n")
-                        messages.append({"role": "assistant", "content": f"Failed: {validation_msg}"})
+                        # if fail:
+                        if attempt < MAX_RETRIES:
+                            print(f"\n[System: Recipe failed validation: {validation_msg}. Asking AI to regenerate and scale down...]\n")
+                            # add the failure to the context and loop again to regenerate
+                            messages.append({"role": "assistant", "content": raw_response})
+                            messages.append({"role": "user", "content": f"Your previous recipe failed validation because: {validation_msg}. Please rewrite the recipe to fix this (e.g., reduce servings or omit the ingredient) and output valid JSON again."})
+                            
+                        else:
+                            print(f"\nLLM: I tried to make a recipe, but we don't have enough ingredients. {validation_msg}\n")
+                            messages.append({"role": "assistant", "content": f"Failed: {validation_msg}"})
+                            
+                else:
+                    print(f"\nLLM: {raw_response}\n")
+                    messages.append({"role": "assistant", "content": raw_response})
+                    break
             
 if __name__ == "__main__":
     Ai_bot = Ai_Chat()

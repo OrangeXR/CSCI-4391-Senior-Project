@@ -20,15 +20,6 @@ load_dotenv()  # Load .env file
 
 
 
-#OPENROUTER_API_KEY=""
-OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY") #============== for render 
-#print("DEBUG — OPENROUTER_API_KEY =", repr(OPENROUTER_API_KEY)) # Makes sure the correct key is being sent out
-
-
-
-
-
-
 UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "profile_pics")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
@@ -37,7 +28,7 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 # Connect to db
 # =============
 def get_db():
-    conn = sqlite3.connect("instance/inventory.db")
+    conn = sqlite3.connect("src/instance/inventory.db")
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -164,10 +155,10 @@ def userprofile():
                 (filename, player_id)
             )
 
-        db.execute(
-            "UPDATE players SET food_allergies = ?, dietary_needs = ? WHERE id = ?",
-            (food_allergies, dietary_needs, player_id)
-        )
+            db.execute(
+                "UPDATE players SET food_allergies = ?, dietary_needs = ? WHERE id = ?",
+                (food_allergies, dietary_needs, player_id)
+             )
         db.commit()
         db.close()
         return redirect(url_for("userprofile"))
@@ -195,8 +186,6 @@ def register():
         name = request.form["name"]
         username = request.form["username"]
         password = request.form["password"]
-        food_allergies = request.form.get("food_allergies", "")
-        dietary_needs = request.form.get("dietary_needs", "")
         file = request.files["profile_picture"]
 
         password_hash = generate_password_hash(password)
@@ -208,9 +197,9 @@ def register():
 
         db = get_db()
         db.execute("""
-            INSERT INTO players (name, username, password_hash, profile_picture, food_allergies, dietary_needs)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, (name, username, password_hash, filename, food_allergies, dietary_needs))
+            INSERT INTO players (name, username, password_hash, profile_picture)
+            VALUES (?, ?, ?, ?)
+        """, (name, username, password_hash, filename))
         db.commit()
         db.close()
 
@@ -256,6 +245,7 @@ def logout():
 @login_required
 def inventory_page():
     from openrouterllm import Ai_Chat   #importing everything from openrouterllm
+    from validator import recipe_validator #importing everything from openrouterllm
     player_id = session["player_id"]
 
     db = get_db()
@@ -281,30 +271,86 @@ def inventory_page():
         message = request.form.get("message" ,"hello")  #defualt message 
         
         Chat_box_In = Ai_Chat() #creating an instance
+        Chat_validator = recipe_validator()
         inventory_items = Chat_box_In.get_active_inventory(player_id) #getting context for the AI
         inventory_context = Chat_box_In.build_inventory_context(inventory_items)
         
+        
         #Message for the AI same as openrouterllm
         messages = [
-            { "role": "system", 
-             "content": (
-                 "You are a helpful, eco-conscious cooking assistant.\n"
-                 "Only use the inventory provided to you.\n"
-                 "When suggesting recipes or meals:\n"
-                 "- Be specific and precise with ingredient quantities.\n"
-                 "- Use realistic measurements (grams, ml, tbsp, cups, etc.).\n"
-                 "- Respect the available inventory amounts.\n"
-                 "- Do not suggest quantities that exceed what is available.\n"
-                 "- If quantity data is missing, state assumptions clearly.\n"
-                 "Keep responses concise but practical and clear." )
-             },
-            {"role": "system",
-             "content": f"Current Inventory:\n{inventory_context}" # provide current inventory context to the LLM every turn so it can make informed suggestions based on what the player has available
-             },
-            {"role": "user", "content": message}
-            ]
+            {
+                "role": "system",
+                "content": (
+                    "## ROLE\n"
+                    "You are an eco-conscious Food Waste Reducer. Your goal is to create recipes "
+                    "using ONLY provided inventory, prioritizing items marked [ABOUT TO EXPIRE].\n\n"
+                    
+                    "## CONSTRAINTS\n"
+                    "- ONLY use provided inventory. Respect available quantities.\n"
+                    "- FORBIDDEN: Do not use expired food. Do not provide food safety advice.\n"
+                    "- If asked about food safety, respond: 'Sorry, I don't have that info.'\n"
+                    "- PRIORITIZE: Use 2-3 [ABOUT TO EXPIRE] items in every recipe to reduce waste.\n\n"
+                    
+                    "## MEASUREMENT LOGIC\n"
+                    "You must match units EXACTLY as provided in the inventory list:\n"
+                    "1. WEIGHT (g, lbs): Do NOT convert to volume. Use the exact weight unit.\n"
+                    "2. COUNT: Use 'count' only (e.g., '1 count' of onion, not '100g').\n"
+                    "3. VOLUME (ml): You may use ml, cups, or tbsp.\n\n"
+                    
+                    "## OUTPUT FORMAT\n"
+                    "1. CHAT: If the user is just greeting or chatting, respond with friendly, concise text.\n"
+                    "2. RECIPE: If the user asks for a recipe or cooking advice, you MUST output "
+                    "STRICTLY a JSON object. No conversational filler before or after the JSON.\n\n"
+                    
+                    "### JSON SCHEMA\n"
+                    "{\n"
+                    '  "recipe_text": "Detailed cooking instructions and tips.",\n'
+                    '  "ingredients_used": [\n'
+                    '    {"name": "string", "quantity": number, "unit": "string", "measurement_type": "string"}\n'
+                    '  ]\n'
+                    "}"
+                )
+            }
+        ]
+        # append user message to conversation
+        messages.append({"role": "system",
+                         "content": f"Current Inventory:\n{inventory_context}" # provide current inventory context to the LLM every turn so it can make informed suggestions based on what the player has available
+                         })
+
+        messages.append({"role": "user", "content": message}) 
         #getting the response
-        Response = Chat_box_In.getLLMResponse(messages)
+        MAX_RETRIES = 1 # retries for recipe generation if validation fails, can adjust as needed
+        for attempt in range(MAX_RETRIES + 1):
+            raw_response = Chat_box_In.getLLMResponse(messages) 
+            #Check if user wants recipe
+            user_lower = message.lower()
+            if any(word in user_lower for word in Chat_box_In.Cook_WORDS):
+                # send recipe to validator
+                is_valid, validation_msg = Chat_validator.validate_AI_recipe(raw_response, player_id)
+                
+                if is_valid:
+                    # pass, output recipe to user
+                    Response=f"\nLLM: {validation_msg}\n"
+                    # save context so the llm remembers what it just said
+                    messages.append({"role": "assistant", "content": validation_msg})
+                    break # break out of the retry loop
+                else:
+                    # if fail:
+                    if attempt < MAX_RETRIES:
+                        Response=f"\n[System: Recipe failed validation: {validation_msg}. Asking AI to regenerate and scale down...]\n"
+                        # add the failure to the context and loop again to regenerate
+                        messages.append({"role": "assistant", "content": raw_response})
+                        messages.append({"role": "user", "content": f"Your previous recipe failed validation because: {validation_msg}. Please rewrite the recipe to fix this (e.g., reduce servings or omit the ingredient) and output valid JSON again."})
+                    else:
+                        Response=f"\nLLM: I tried to make a recipe, but we don't have enough ingredients. {validation_msg}\n"
+                        messages.append({"role": "assistant", "content": f"Failed: {validation_msg}"})
+                            
+            else:
+                Response=f"\nLLM: {raw_response}\n"
+                messages.append({"role": "assistant", "content": raw_response})
+                break
+            
+            
     db.close()
     return render_template(
         "InventoryPage.html",
@@ -515,6 +561,7 @@ def scoreboard():
 
 
 
+
 # ==================================================================================================
 # Saving Meal Recipe
 # ==================================================================================================
@@ -571,7 +618,6 @@ def view_meal(meal_id):
         return "Meal not found", 404
 
     return render_template("ViewMeal.html", meal=meal)
-
 
 
 
@@ -687,6 +733,10 @@ if __name__ == "__main__":
 # for render.com
 # gunicorn app:app
 # ================
+
+
+
+
 
 
 

@@ -18,13 +18,14 @@ def normalizeIngredient(name):
     return name
 
 def ingredients_match(req_name, inv_name):
-    req_words = req_name.split() 
-    inv_words = inv_name.split()
+    
 
     # exact match
     if req_name == inv_name:
         return True
 
+    req_words= set(req_name.split())
+    inv_words = set(inv_name.split())
     # generic protein matching
     proteins = ["chicken", "beef", "pork", "fish", "turkey"]
 
@@ -32,9 +33,12 @@ def ingredients_match(req_name, inv_name):
         if protein in req_words and protein in inv_words:
             return True
 
+    if req_words.issubset(inv_words):
+        return True 
+   
     # fallback partial match
-    if req_name in inv_name or inv_name in req_name:
-        return True
+    #if req_name in inv_name or inv_name in req_name:
+     #   return True
 
     return False
 
@@ -42,7 +46,7 @@ def ingredients_match(req_name, inv_name):
 
 class recipe_validator:
     def __init__(self):
-        self.DB_PATH = 'instance/inventory.db'
+        self.DB_PATH = 'src/instance/inventory.db'
         self.PLAYER_ID = 1 # for testing
     
     def get_db(self): 
@@ -71,7 +75,7 @@ class recipe_validator:
         inventory = self.get_active_inventory(player_id)
         # checks expired 
         print("\n--- VALIDATOR INVENTORY CHECK ---")
-        expired, about_to_expire, fresh = sort_inventory(inventory)
+        expired, about_to_expire, fresh = sort_inventory(player_id)# <------ passing player_id instead of inventory
         
         # Make everything lowercase for easy matching
         exp_lower = [name.lower() for name in expired]
@@ -151,18 +155,26 @@ class recipe_validator:
             req_unit = req.get('unit', 'each')
             req_type = req.get('measurement_type', 'count')
 
-            if req_name in exp_lower:
-                return False, f"Ingredient '{req_name}' is expired and cannot be used."
             
            # print(f"\n Checking ingredient: {req_name} (Needs {req_qty} {req_unit}, Type: {req_type})") // can be removed for debugging
             # exists in pantry, fuzzy match
             matched_inv = None
+            matched_name = None
             for inv_name in inv_dict.keys():
                 if ingredients_match(req_name, inv_name):
                     matched_inv = inv_dict[inv_name]
+                    matched_name = inv_name
                     print(f"      * Found match in pantry: '{inv_name}'")
                     break
 
+            if not matched_inv:
+                print(f"FAILED: '{req_name}' not found in pantry.")
+                return False, f"Ingredient '{req_name}' is not in the pantry."
+
+            # check expiry against the matched pantry name, not req_name
+            if matched_name in exp_lower:
+                return False, f"Ingredient '{req_name}' is expired and cannot be used."
+                
             if not matched_inv:
                 print(f"FAILED: '{req_name}' not found in pantry.")
                 return False, f"Ingredient '{req_name}' is not in the pantry."

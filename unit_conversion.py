@@ -43,6 +43,7 @@ def normalize_quantity(quantity, unit, measurement_type):
 def convert_recipe_unit(amount, unit):
     # converts recipe ingredient units to normalized form so validator can compare 
   
+    # weight conversions 
     if unit in ["g"]:
         return amount, "grams"
 
@@ -51,11 +52,33 @@ def convert_recipe_unit(amount, unit):
 
     if unit in ["lb"]:
         return amount * 453.592, "grams"
+    
+    if unit in ["oz"]:
+        return amount * 28.3495, "grams" # added oz to grams
+    
+    if unit in ["mg"]:
+        return amount / 1000, "grams" # added mg to grams 
 
+    # volume conversions
     if unit in ["ml"]:
         return amount, "ml"
 
     if unit in ["fl_oz"]:
         return amount * 29.5735, "ml"
+    
+    if unit in ["l", "liter"]:
+        return amount * 1000, "ml" # liter to ml
+    
+    if unit in ["cup"]:
+        return amount * 240, "ml" # cup to ml 
+    
+    if unit in ["tbsp"]:
+        return amount * 15, "ml" # tbsp to ml
+    
+    if unit in ["tsp"]:
+        return amount * 5, "ml" # tsp to ml
+    
+    if unit in ["gallon"]:
+        return amount * 3785.41, "ml" # gallon to ml 
 
     return amount, "count"

@@ -6,8 +6,9 @@ from datetime import datetime, timedelta
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-from unit_conversion import normalize_quantity
+from unit_conversion import normalize_quantity, convert_recipe_unit
 from expiry import get_expiry_date
+import json
 
 # ========================
 # Create Flask application
@@ -28,7 +29,7 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 # Connect to db
 # =============
 def get_db():
-    conn = sqlite3.connect("instance/inventory.db")
+    conn = sqlite3.connect("src/instance/inventory.db")
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -67,7 +68,6 @@ def calculate_flags(item):
     donation_allowed = 0 if opened == 1 or raw_meat == 1 or decomposition_flag == 1 else 1
 
     return raw_meat, perishable, donation_allowed, decomposition_flag
-
 # ======================
 # Login Required Wrapper
 # ======================
@@ -107,9 +107,35 @@ def dashboard():
     expiring_soon = get_expiry_date(player)
 
 # =============================================================================================================
-# Get a list of saved recipes for the user
+# Get a list of saved recipes for the user + get score and pfp for dashboard
 # =============================================================================================================
     db = get_db()
+
+    # new - fetch full player record so pfp and score can be shown on dashboard
+    current_player = db.execute(
+        "SELECT * FROM players WHERE id = ?", (player,)
+    ).fetchone()
+
+    # new - fetch inventory to calculate waste reduction flags
+    inventory_items = db.execute(
+        "SELECT * FROM inventory WHERE player_id = ? AND status = 'active'", 
+        (player,)
+    ).fetchall()
+
+    # new - calculate stats for dashboard
+    stats = {
+        "donation_eligible": 0,
+        "expired_perishables": 0,
+        "total_active": len(inventory_items)
+    }
+
+    # calculate flags for each item and stats for dashboard display
+    for item in inventory_items:
+        # dict(item) ensures calculate_flags can read the keys correctly
+        _, _, donation_allowed, decomposition = calculate_flags(dict(item))
+        stats["donation_eligible"] += donation_allowed
+        stats["expired_perishables"] += decomposition
+
     meals = db.execute(
         "SELECT id, name, created_at FROM meals WHERE player_id = ? ORDER BY created_at DESC",
         (player,)
@@ -124,9 +150,9 @@ def dashboard():
 
     if expiring_soon:
         item_list = ", ".join(expiring_soon)
-        flash(f"⚠️ Heads up! Your {item_list} will expire in 3 days.", "warning")
+        flash(f"Heads up! Your {item_list} will expire in 4 days.", "warning")
 
-    return render_template('dashboard.html', player=player, meals=meals)
+    return render_template('dashboard.html', player=current_player, meals=meals, stats=stats)
 
 # =====================
 # User Profile
@@ -143,11 +169,17 @@ def userprofile():
 
         food_allergies = request.form.get("food_allergies")
         dietary_needs = request.form.get("dietary_needs")
-        
+
+        # Always update dietary fields
+        db.execute(
+            "UPDATE players SET food_allergies = ?, dietary_needs = ? WHERE id = ?",
+            (food_allergies, dietary_needs, player_id)
+        )
+
+        # Only update picture if uploaded
         if file and file.filename != "":
             filename = secure_filename(file.filename)
             filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-
             file.save(filepath)
 
             db.execute(
@@ -155,10 +187,6 @@ def userprofile():
                 (filename, player_id)
             )
 
-            db.execute(
-                "UPDATE players SET food_allergies = ?, dietary_needs = ? WHERE id = ?",
-                (food_allergies, dietary_needs, player_id)
-             )
         db.commit()
         db.close()
         return redirect(url_for("userprofile"))
@@ -185,6 +213,8 @@ def register():
     if request.method == "POST":
         name = request.form["name"]
         username = request.form["username"]
+        food_allergies = request.form.get("food_allergies")
+        dietary_needs = request.form.get("dietary_needs")
         password = request.form["password"]
         file = request.files["profile_picture"]
 
@@ -197,9 +227,9 @@ def register():
 
         db = get_db()
         db.execute("""
-            INSERT INTO players (name, username, password_hash, profile_picture)
-            VALUES (?, ?, ?, ?)
-        """, (name, username, password_hash, filename))
+            INSERT INTO players (name, username, password_hash, profile_picture, food_allergies, dietary_needs)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (name, username, password_hash, filename, food_allergies, dietary_needs))
         db.commit()
         db.close()
 
@@ -265,17 +295,17 @@ def inventory_page():
 # =====================
 # Ai integration 
 # =====================
-    Response = None    #So errors dont occur 
-    
-    if request.method == 'POST': #Checking if anything is inputed 
-        message = request.form.get("message" ,"hello")  #defualt message 
-        
-        Chat_box_In = Ai_Chat() #creating an instance
+    Response = None     #So errors dont occur
+
+    if request.method == 'POST': #Checking if any is inputed
+        message = request.form.get("message", "hello")  #default message 
+        user_lower = message.lower()
+
+        Chat_box_In = Ai_Chat()  #creating an instance 
         Chat_validator = recipe_validator()
-        inventory_items = Chat_box_In.get_active_inventory(player_id) #getting context for the AI
+        inventory_items = Chat_box_In.get_active_inventory(player_id)  #getting context for the AI
         inventory_context = Chat_box_In.build_inventory_context(inventory_items)
-        
-        
+
         #Message for the AI same as openrouterllm
         messages = [
             {
@@ -284,73 +314,190 @@ def inventory_page():
                     "## ROLE\n"
                     "You are an eco-conscious Food Waste Reducer. Your goal is to create recipes "
                     "using ONLY provided inventory, prioritizing items marked [ABOUT TO EXPIRE].\n\n"
-                    
+                    # --------------------------------------------------------------------------------------------
+                    # Check allergies and dietary needs
+                    # ---------------------------------------------------------------------------------------------
+                    "## PLAYER DIET & ALLERGIES\n"
+                    f"- Player food allergies: {current_player['food_allergies'] or 'None specified'}\n"
+                    f"- Player dietary needs: {current_player['dietary_needs'] or 'None specified'}\n\n"
+                    "- You MUST NOT include any ingredient that conflicts with the player's food allergies.\n"
+                    "- You MUST respect the player's dietary needs when suggesting recipes.\n\n"
+                    # ---------------------------------------------------------------------------------------------
                     "## CONSTRAINTS\n"
                     "- ONLY use provided inventory. Respect available quantities.\n"
                     "- FORBIDDEN: Do not use expired food. Do not provide food safety advice.\n"
                     "- If asked about food safety, respond: 'Sorry, I don't have that info.'\n"
-                    "- PRIORITIZE: Use 2-3 [ABOUT TO EXPIRE] items in every recipe to reduce waste.\n\n"
-                    
+                    "- PRIORITIZE: Use 2-3 [ABOUT TO EXPIRE] items in every recipe to reduce waste.\n"
+                    "- Quantities MUST be realistic for cooking.\n"
+                    "- Typical cooking amounts: Salt: pinch–5g | Oil: 15–45ml | Spices: under 5g.\n\n"
+                    "- NEVER invent ingredients not explicitly listed in the inventory. If an item is not in the inventory, do not use it.\n"
+
                     "## MEASUREMENT LOGIC\n"
                     "You must match units EXACTLY as provided in the inventory list:\n"
                     "1. WEIGHT (g, lbs): Do NOT convert to volume. Use the exact weight unit.\n"
                     "2. COUNT: Use 'count' only (e.g., '1 count' of onion, not '100g').\n"
                     "3. VOLUME (ml): You may use ml, cups, or tbsp.\n\n"
                     
-                    "## OUTPUT FORMAT\n"
-                    "1. CHAT: If the user is just greeting or chatting, respond with friendly, concise text.\n"
-                    "2. RECIPE: If the user asks for a recipe or cooking advice, you MUST output "
-                    "STRICTLY a JSON object. No conversational filler before or after the JSON.\n\n"
-                    
-                    "### JSON SCHEMA\n"
+                     "## OUTPUT FORMAT — FOUR MODES\n\n"
+ 
+                    "### MODE 1: CHAT\n"
+                    "For greetings or general questions: respond with friendly, concise plain text.\n\n"
+ 
+                    "### MODE 2: RECIPE\n"
+                    "If the user asks for a recipe or cooking advice, return ONLY valid JSON. "
+                    "No text before or after. No markdown.\n"
                     "{\n"
-                    '  "recipe_text": "Detailed cooking instructions and tips.",\n'
+                    '  "response_type": "recipe",\n'
+                    '  "recipe_title": "string",\n'
+                    '  "recipe_text": "string (step-by-step instructions)",\n'
                     '  "ingredients_used": [\n'
                     '    {"name": "string", "quantity": number, "unit": "string", "measurement_type": "string"}\n'
                     '  ]\n'
-                    "}"
+                    "}\n\n"
+ 
+                    "### MODE 3: DECOMPOSITION\n"
+                    "If the user asks about composting, disposing, or decomposing food, "
+                    "return ONLY valid JSON listing items flagged as compostable or expired. "
+                    "No text before or after. No markdown.\n"
+                    "{\n"
+                    '  "response_type": "decomposition",\n'
+                    '  "suggestions": [\n'
+                    '    {\n'
+                    '      "name": "string",\n'
+                    '      "method": "string (e.g. home compost, green bin, bokashi, worm bin)",\n'
+                    '      "notes": "string — a specific tip for THIS item. Examples: '
+                    '       avocado pit: remove hard pit before composting | '
+                    '       citrus: use sparingly in worm bins, high acidity | '
+                    '       raw meat: bokashi only, never open compost | '
+                    '       cooked food: green bin only | '
+                    '       eggplant: chop skin into small pieces, flesh breaks down fast | '
+                    '       banana peel: great nitrogen source, compost whole | '
+                    '       bread: attracts pests, use bokashi or bury deep. '
+                    '       Give a UNIQUE note per item — never repeat the same note."\n'
+                    '    }\n'
+                    '  ]\n'
+                    "}\n\n"
+ 
+                    "### MODE 4: DONATION\n"
+                    "If the user asks about donating food, return ONLY valid JSON listing items "
+                    "marked donation_allowed=1 that are NOT expired and NOT raw_meat. "
+                    "No text before or after. No markdown.\n"
+                    "{\n"
+                    '  "response_type": "donation",\n'
+                    '  "suggestions": [\n'
+                    '    {\n'
+                    '      "name": "string — item name exactly as in inventory",\n'
+                    '      "quantity": number,\n'
+                    '      "unit": "string — use the unit from inventory",\n'
+                    '      "donation_tip": "string — REQUIRED, specific tip e.g. bring to food bank sealed, check best-by before drop-off, community fridge accepted"\n'
+                    '    }\n'
+                    '  ]\n'
+                    "}\n"
                 )
             }
         ]
+
         # append user message to conversation
         messages.append({"role": "system",
-                         "content": f"Current Inventory:\n{inventory_context}" # provide current inventory context to the LLM every turn so it can make informed suggestions based on what the player has available
+                          "content": f"Current Inventory:\n{inventory_context}" # provide current inventory context to the LLM every turn so it can make informed suggestions based on what the player has available
                          })
+        
+        messages.append({"role": "user", "content": message})
 
-        messages.append({"role": "user", "content": message}) 
-        #getting the response
-        MAX_RETRIES = 1 # retries for recipe generation if validation fails, can adjust as needed
-        for attempt in range(MAX_RETRIES + 1):
-            raw_response = Chat_box_In.getLLMResponse(messages) 
-            #Check if user wants recipe
-            user_lower = message.lower()
-            if any(word in user_lower for word in Chat_box_In.Cook_WORDS):
+        MAX_RETRIES = 1 # retries for recipe generation if validation fails, can adjust as needed 
+        #===============
+        # Recipe section
+        #===============
+        if any(word in user_lower for word in Chat_box_In.Cook_WORDS):
+            for attempt in range(MAX_RETRIES):
+                raw_response = Chat_box_In.getLLMResponse(messages)
+                # for rate limit exceeded 
+                if raw_response is None:
+                    Response = {"type": "error", "text": "The model is busy. Please try again in a moment."}
+                    break
                 # send recipe to validator
                 is_valid, validation_msg = Chat_validator.validate_AI_recipe(raw_response, player_id)
-                
                 if is_valid:
-                    # pass, output recipe to user
-                    Response=f"\nLLM: {validation_msg}\n"
-                    # save context so the llm remembers what it just said
-                    messages.append({"role": "assistant", "content": validation_msg})
-                    break # break out of the retry loop
-                else:
-                    # if fail:
-                    if attempt < MAX_RETRIES:
-                        Response=f"\n[System: Recipe failed validation: {validation_msg}. Asking AI to regenerate and scale down...]\n"
-                        # add the failure to the context and loop again to regenerate
-                        messages.append({"role": "assistant", "content": raw_response})
-                        messages.append({"role": "user", "content": f"Your previous recipe failed validation because: {validation_msg}. Please rewrite the recipe to fix this (e.g., reduce servings or omit the ingredient) and output valid JSON again."})
-                    else:
-                        Response=f"\nLLM: I tried to make a recipe, but we don't have enough ingredients. {validation_msg}\n"
-                        messages.append({"role": "assistant", "content": f"Failed: {validation_msg}"})
+                    try:
+                        raw_response = raw_response.strip()
+                        #parsed = json.loads(raw_response)
+                        #extract JSON safely
+                        start = raw_response.find("{")
+                        end = raw_response.rfind("}") + 1
+                        json_str = raw_response[start:end]
+
+                        parsed= json.loads(json_str)
+
+                        session["last_recipe"] = parsed
+                        used_ingredients = parsed.get("ingredients_used", []) 
+                        Response = {
+                            "type": "recipe",
+                            "title": parsed.get("recipe_title", "Recipe"),
+                            "ingredients": used_ingredients,
+                            "steps": parsed.get("recipe_text", "")
+                        }
                             
+                    except json.JSONDecodeError:
+                        Response = {"type": "chat", "text": raw_response}
+                        break
+                else:
+                    Response = {"type": "error", "text": f"I tried to make a recipe with your current inventory. {validation_msg}"}
+        # ================
+        # ================
+        # donation section
+        # ================
+        elif any(word in user_lower for word in Chat_box_In.Donate_WORDS):
+            for attempt in range(MAX_RETRIES):
+                raw_response = Chat_box_In.getLLMResponse(messages)
+                if raw_response is None:
+                    Response = {"type": "error", "text": "The model is busy. Please try again in a moment."}
+                    break
+                try:
+                    parsed = json.loads(raw_response)
+                    if "suggestions" not in parsed:
+                        raise ValueError("Missing suggestions key")
+                    suggestions = parsed.get("suggestions", [])
+                    Response = {"type": "donation", "suggestions": suggestions}      
+                    break
+                except (json.JSONDecodeError, ValueError):
+                    if attempt < MAX_RETRIES:
+                        messages.append({"role": "assistant", "content": raw_response})
+                        messages.append({"role": "user", "content": "Return ONLY valid JSON with a 'suggestions' list for donation. No explanation. Follow the schema exactly."})
+                    else:
+                        Response = {"type": "chat", "text": raw_response}
+
+        # =====================
+        # decomposition section
+        # =====================
+        elif any(word in user_lower for word in Chat_box_In.Decomp_WORDS):
+            for attempt in range(MAX_RETRIES):
+                raw_response = Chat_box_In.getLLMResponse(messages)
+                if raw_response is None:
+                    Response = {"type": "error", "text": "The model is busy. Please try again in a moment."}
+                    break
+                try:
+                    parsed = json.loads(raw_response)
+                    if "suggestions" not in parsed:
+                        raise ValueError("Missing suggestions key")
+                    
+                    Response = {"type": "decomposition", "suggestions": parsed.get("suggestions", [])}
+                    break
+                except (json.JSONDecodeError, ValueError):
+                    if attempt < MAX_RETRIES:
+                        messages.append({"role": "assistant", "content": raw_response})
+                        messages.append({"role": "user", "content": "Return ONLY valid JSON with a 'suggestions' list for decomposition. No explanation. Follow the schema exactly."})
+                    else:
+                        Response = {"type": "chat", "text": raw_response}
+
+        # ============
+        # general chat
+        # ============
+        else:
+            raw_response = Chat_box_In.getLLMResponse(messages)
+            if raw_response is None:
+                Response = {"type": "error", "text": "The model is busy. Please try again in a moment."}
             else:
-                Response=f"\nLLM: {raw_response}\n"
-                messages.append({"role": "assistant", "content": raw_response})
-                break
-            
-            
+                Response = {"type": "chat", "text": raw_response}  
     db.close()
     return render_template(
         "InventoryPage.html",
@@ -358,7 +505,50 @@ def inventory_page():
         current_player=current_player,
         Response=Response
     )
+    
+#apply recipe amount used (when "Cook this recipe is clicked")
+@app.route("/apply_recipe", methods=["POST"])
+@login_required
+def apply_recipe():
+    player_id = session["player_id"]
+    db = get_db()
 
+    recipe = session.get("last_recipe")
+
+    if not recipe:
+        return redirect(url_for("inventory_page"))
+
+    total_score_change = 0
+    for ing in recipe.get("ingredients_used", []):
+        item = db.execute(
+            "SELECT * FROM inventory WHERE name = ? AND player_id = ?",
+            (ing["name"], player_id)
+        ).fetchone()
+
+        if not item:
+            continue
+
+        amount, _ = convert_recipe_unit(ing["quantity"], ing["unit"])
+
+        consume_inventory_item(db, item, amount, ing["unit"])
+
+        base_qty = item["quantity_grams"] or item["quantity_ml"] or item["quantity"]
+
+        if base_qty:
+            usage_ratio = amount / base_qty 
+            score_change= item["price"] * usage_ratio
+            total_score_change += score_change
+
+            db.execute(
+                "UPDATE players SET score = score - ? WHERE id = ?",
+                (score_change, player_id)
+            )
+
+    db.commit()
+    db.close()
+    flash(f"Recipe cooked successfully! -{total_score_change:.2f} points used.", "success")
+
+    return redirect(url_for("inventory_page"))
 
 # =====================
 # Add Item Page
@@ -439,6 +629,67 @@ def add_item_page():
 
     return render_template("AddItemPage.html", current_player=current_player)
 
+
+
+# =====================================
+# update inventory if user uses recipe
+# ======================================
+def consume_inventory_item(db, item, amount, unit):
+
+    grams = item["quantity_grams"]
+    ml = item["quantity_ml"]
+
+    unit = unit.lower()
+
+    # ====================
+    # weight consumption
+    # ====================
+    if unit in ["g", "gram", "grams", "kg", "lb", "oz", "mg"]:
+        if grams is None:
+            return False
+
+        new_value = grams - amount
+
+        if new_value <= 0:
+            db.execute("DELETE FROM inventory WHERE id = ?", (item["id"],))
+        else:
+            db.execute(
+                "UPDATE inventory SET quantity_grams = ? WHERE id = ?",
+                (new_value, item["id"])
+            )
+
+    # ====================
+    # volume consumption
+    # ====================
+    elif unit in ["ml", "l", "liter", "cup", "tbsp", "tsp", "fl_oz", "gallon"]:
+        if ml is None:
+            return False
+
+        new_value = ml - amount
+
+        if new_value <= 0:
+            db.execute("DELETE FROM inventory WHERE id = ?", (item["id"],))
+        else:
+            db.execute(
+                "UPDATE inventory SET quantity_ml = ? WHERE id = ?",
+                (new_value, item["id"])
+            )
+
+    # ====================
+    # count items 
+    # ====================
+    else:
+        new_value = item["quantity"] - amount
+
+        if new_value <= 0:
+            db.execute("DELETE FROM inventory WHERE id = ?", (item["id"],))
+        else:
+            db.execute(
+                "UPDATE inventory SET quantity = ? WHERE id = ?",
+                (new_value, item["id"])
+            )
+
+    return True
 # =====================
 # Use Item
 # =====================
@@ -452,7 +703,7 @@ def use_item(item_id):
         "SELECT quantity, price FROM inventory WHERE id = ?",
         (item_id,)
     ).fetchone()
-
+    
     if item:
         new_qty = item["quantity"] - 1
 
@@ -493,6 +744,7 @@ def donate_item(item_id):
             "UPDATE players SET score = score - ? WHERE id = ?",
             (item["price"] * 0.5, player_id)
         )
+        flash("- .5 points for donating food!", "success")
 
         db.execute("UPDATE inventory SET status = 'donated' WHERE id = ?", (item_id,))
         db.commit()
@@ -519,6 +771,7 @@ def compost_item(item_id):
             "UPDATE players SET score = score - ? WHERE id = ?",
             (item["price"] * 0.25, player_id)
         )
+        flash(f"- .25 points for composting!", "success")
 
         db.execute("UPDATE inventory SET status = 'composted' WHERE id = ?", (item_id,))
         db.commit()
@@ -532,13 +785,55 @@ def compost_item(item_id):
 @app.route("/delete/<int:item_id>", methods=["POST"])
 @login_required
 def delete_item(item_id):
+    player_id = session["player_id"]
     db = get_db()
+
+    item = db.execute(
+        "SELECT price, status, name FROM inventory WHERE id = ?",
+        (item_id,)
+    ).fetchone()
+
+    if item:
+        status = item["status"] if "status" in item.keys() else "active"
+
+        #penalize ONLY if not already handled properly
+        if status not in ["composted", "donated"]:
+            penalty = item["price"] * 1.0
+            db.execute(
+                "UPDATE players SET score = score + ? WHERE id = ?",
+                (penalty, player_id)
+            )
+            flash(f"+{penalty:.2f} points for wasting food!", "error")
+        else: 
+            #feedback for composted/donated delete action
+            flash(f"{item['name']} successfully removed from inventory.", "success")
+            
     db.execute("DELETE FROM inventory WHERE id = ?", (item_id,))
     db.commit()
     db.close()
 
     return redirect(url_for("inventory_page"))
 
+# ==============
+# delete recipe
+# ==============
+@app.route("/delete_meal/<int:meal_id>", methods=["POST"])
+@login_required
+def delete_meal(meal_id):
+    db = get_db()
+
+    meal = db.execute(
+        "SELECT name FROM meals WHERE id = ?",
+        (meal_id,)
+    ).fetchone()
+
+    if meal:
+        db.execute("DELETE FROM meals WHERE id = ?", (meal_id,))
+        db.commit()
+        flash(f"{meal['name']} deleted successfully.", "success")
+
+    db.close()
+    return redirect(url_for("dashboard"))  
 
 # =====================
 # Score Board  (we should rethink the scoring)
@@ -548,7 +843,7 @@ def delete_item(item_id):
 def scoreboard():
     db = get_db()
 
-    # Order by score ascending (ascending = lowest → highest)
+    # Order by score descending (highest → lowest)
     players = db.execute("""
         SELECT id, name, score, profile_picture
         FROM players
@@ -569,23 +864,21 @@ def scoreboard():
 @login_required
 def save_meal():
     player_id = session["player_id"]
-    recipe_text = request.form.get("recipe_text", "").strip()
+    recipe= session.get("last_recipe")
+
+    if not recipe: 
+        flash("No recipe to save.", "error")
+        return redirect(url_for("inventory_page"))
     
-    # =============================
-    # Parse recipe
-    # =============================
-    lines = recipe_text.split("\n")
-    name = lines[0].strip() if lines else "Untitled Recipe"
-    ingredients = "\n".join(
-        [line.strip() for line in lines if "-" in line or "•" in line]
-    )
-    description = recipe_text
+    name = recipe.get("recipe_title", "Untitled Recipe")
+    ingredients = "\n".join([
+        f"{ing['name']} - {ing['quantity']} {ing['unit']}"
+        for ing in recipe.get("ingredients_used", [])
+    ])
 
-    # ========================================================================
-    # Insert to database
-    # ========================================================================
-    db = get_db()
+    description = recipe.get("recipe_text", "")
 
+    db= get_db()
     try:
         db.execute("""
             INSERT INTO meals (player_id, name, ingredients, description)
@@ -593,10 +886,8 @@ def save_meal():
         """, (player_id, name, ingredients, description))
 
         db.commit()
-    
-    finally:
+    finally: 
         db.close()
-    # ==========================================================================
     flash("Recipe saved!", "success")
     return redirect(url_for("dashboard"))
 # ==================================================================================================

@@ -23,6 +23,38 @@
         <p class="text">Score: <strong>{{ current_player.score  }}</strong></p>
     </center>    
     <!-- =========================================================================================== -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-entrance"
+        style="
+          padding: 18px;
+          border-radius: 8px;
+          margin-bottom: 20px;
+          display: flex;
+          align-items: center;
+          font-weight: 600;
+          font-family: system-ui, -apple-system, sans-serif;
+          box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+          border: 1px solid;
+        "
+
+        {% if category == 'success' %}
+          style="background-color:#d4f8d4; border-color:#88d888; color:#1f6b1f;"
+        {% elif category == 'error' %}
+          style="background-color:#ffd6d6; border-color:#ff8a8a; color:#8b1e1e;"
+        {% elif category == 'warning' %}
+          style="background-color:#fff3cd; border-color:#ffe08a; color:#856404;"
+        {% else %}
+          style="background-color:#e7f1ff; border-color:#9ec5fe; color:#084298;"
+        {% endif %}
+      >
+        <span style="font-size: 20px; margin-right: 15px;">🌱</span>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
 </div>
 
 
@@ -62,31 +94,142 @@
         <!--     <p>{{ Response }}</p> -->
         <!-- ================= CHAT RESPONSE ================= -->
         <div class="msg-container">
-        {% if Response %}
-        <h3>
-            <img src="{{ url_for('static', filename='Pictures/chef.png') }}" alt="chefbinny" class="binnychef">Ask for a recipe
-        </h3>
-        <pre class="ai-response">{{ Response }}</pre>
-        <form action="{{ url_for('save_meal') }}" method="POST">
-            <input type="hidden" class="response-text-AI"  name="recipe_text" value="{{ Response }}">
-            <button type="submit" class="submit-btn">Save Recipe</button>
-        </form>
-        {% else %}
-        <h3>
-            <img src="{{ url_for('static', filename='Pictures/chef.png') }}" alt="chefbinny" class="binnychef">Ask for a recipe
-        </h3>
-        {%endif%}
-    </div>   
-    <!-- ================= USER INPUT ================= -->
-    <form method="post">
-        <div class="input-Chatgroup-btn">
-            <input type="text" class="text-goes-here-AI" name="message" placeholder="text Here !!">
-            <button class="submit-btn" type="submit">submit</button>
-        </div>
-    </form>
-</div>
-</div>
+            {# ---- Avatar header ---- #}
 
+            <h3>
+                <img src="{{ url_for('static', filename='Pictures/chef.png') }}" alt="chefbinny" class="binnychef">Ask Binny
+            </h3>
+            {# ---- AI Response block ---- #}
+            {% if Response %}
+                {# --- Recipe --- #}
+                {% if Response["type"] == "recipe" %}
+                <div class="ai-block ai-recipe">
+                    <p class="ai-label">Recipe</p>
+                    <p class="ai-recipe-title">{{Response.title}}</p>
+
+                    <ul class="ai-ingredient-list">
+                        {%for ing in Response.ingredients %}
+                        <li> {{ing.name }} - {{ ing.quantity }} {{ ing.unit}}</li>
+                        {% endfor %}
+                    </ul>
+
+                    <details class="ai-steps-toggle">
+                        <summary>Show steps:</summary>
+                        <pre class="ai-steps">{{ Response.steps }}</pre>
+
+                    </details>
+                    <form action="{{ url_for('apply_recipe') }}" method="POST">
+                        <button type="submit" class="use-recipe-btn">
+                             Cook This Recipe
+                        </button>
+                    </form>
+                    {# Save recipe form - passes title + step as recipe_text #}
+                    <form action="{{ url_for('save_meal') }}" method="POST">
+                        <input type="hidden" name="recipe_text"
+                            value="{{ Response.title }}&#10;{% for ing in Response.ingredients %}– {{ ing.name }}: {{ ing.quantity }} {{ ing.unit }}&#10;{% endfor %}&#10;{{ Response.steps }}">
+                        
+                            <button type="submit" class="submit-btn">Save Recipe</button>
+
+                    </form>
+                </div>
+            {# -- Decomposition -- #}
+            {% elif Response.type == "decomposition" %}
+            <div class="ai-block ai-decomp">
+                <p class="ai-label">Compost suggestions</p>
+                <ul class="ai-suggestion-list">
+                {% for s in Response.suggestions %}
+                    <li>
+                    <strong>{{ s.name }}</strong> — {{ s.get('method', 'See note') }}
+                    {% if s.get('notes') %}
+                        <span class="ai-note">{{ s.notes }}</span>
+                    {% endif %}
+                 </li>
+                {% endfor %}
+            </ul>
+        </div>
+ 
+        {# ── DONATION ── #}
+        {% elif Response.type == "donation" %}
+          <div class="ai-block ai-donate">
+            <p class="ai-label">Donation suggestions</p>
+            <ul class="ai-suggestion-list">
+              {% for s in Response.suggestions %}
+                <li>
+                  <strong>{{ s.name }}</strong>
+                  {% if s.get('quantity') %} — {{ s.quantity }} {{ s.get('unit', '') }}{% endif %}
+                  {% if s.get('donation_tip') %}
+                    <span class="ai-note">{{ s.donation_tip }}</span>
+                  {% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+ 
+        {# ── ERROR ── #}
+        {% elif Response.type == "error" %}
+          <div class="ai-block ai-error">
+            <p class="ai-label">Heads up</p>
+            <p class="ai-response">{{ Response.text }}</p>
+          </div>
+ 
+        {# ── GENERAL CHAT ── #}
+        {% else %}
+          <div class="ai-block ai-chat">
+            <p class="ai-response">{{ Response.text }}</p>
+          </div>
+        {% endif %}
+ 
+      {% endif %}
+      {# end Response #}
+ 
+    </div>
+    {# end msg-container #}
+ 
+    {# ── User input form ── #}
+    <form method="post" onsubmit="showLoading()">
+      <div class="input-Chatgroup-btn">
+        <input type="text" class="text-goes-here-AI" name="message"
+               placeholder="Ask for a recipe, compost tips, donation ideas...">
+        <button class="submit-btn" type="submit">Submit</button>
+      </div>
+    </form>
+ 
+  </div>
+  {# end form-container #}
+ 
+</div>
+{# end chatBox #}
+
+<!--
+# ========================================================================
+# Restores chat window status on page load
+# ========================================================================
+-->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const chatState = localStorage.getItem("chatOpen");
+
+    if (chatState === "true") {
+        document.getElementById("chatBox").style.display = "block";
+    }
+});
+</script>
+<!--
+# ========================================================================
+-->
+<!--
+# ================================================
+# If there is a response open window
+# ================================================
+-->
+{% if Response and Response|trim != "" %}
+<script>
+    localStorage.setItem("chatOpen", "true");
+</script>
+{% endif %}
+<!-- 
+# =================================================
+-->
 <!-- ========================================================================================================================================= -->
 
 
@@ -95,7 +238,7 @@
 <div class="body">
     <div class="table-container">
         <!-- =================== Table Setup =================== -->
-        <table class="kawaii-table" id="inventoryTable">
+        <table class="kawaii-table-wider" id="inventoryTable">
             <thead>
                 <tr>
                     <th>Name</th>
@@ -122,16 +265,23 @@
                              =================== -->
                         {% if item.status == 'active' %}
                             <form action="{{ url_for('use_item', item_id=item.id, player_id=current_player.id) }}" method="POST" style="display:inline;">
-                                <button type="submit" class="kawaii-lil-btn">Use</button>
-                            </form>
-
-                            <form action="{{ url_for('donate_item', item_id=item.id, player_id=current_player.id) }}" method="POST" style="display:inline;">
-                                <button type="submit" class="kawaii-lil-btn">Donate</button>
+                                <button type="submit" class="kawaii-lil-action-btn">Use</button>
                             </form>
 
                             <form action="{{ url_for('compost_item', item_id=item.id, player_id=current_player.id) }}" method="POST" style="display:inline;">
-                                <button type="submit" class="kawaii-lil-btn">Compost</button>
+                                <button type="submit" class="kawaii-lil-action-btn">Compost</button>
+                            </form><br>
+
+                            <form action="{{ url_for('donate_item', item_id=item.id, player_id=current_player.id) }}" method="POST" style="display:inline;">
+                                <button type="submit" class="kawaii-lil-action-btn">Donate</button>
                             </form>
+
+                            <form action="{{ url_for('delete_item', item_id=item.id, player_id=current_player.id) }}" method="POST" style="display:inline;">
+                                <button type="submit" class="kawaii-lil-action-btn">Delete</button>
+                            </form>
+
+
+                            
                         {% endif %}
 
                         <!-- ==================== 
@@ -187,6 +337,17 @@ document.addEventListener("DOMContentLoaded", function () {
     rows.forEach(row => tbody.appendChild(row));
 });
 </script>
+
+<!-- ==========================================
+     Loading symbol for when it takes long time
+     =========================================== -->
+
+     <div id = "loading-box">
+        <img id= "loading-image" src="{{ url_for('static', filename='Pictures/Binny.png')}}" alt= "Loading Recipe ...">
+        <h3 class="loading-text">Loading Recipe...</h3>
+        <span class="loader"></span>
+    </div>
+
 
 
 

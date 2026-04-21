@@ -19,7 +19,7 @@ app.secret_key = "super-secret-key"
 BASE_DIR = app.root_path
 load_dotenv()  # Load .env file
 
-
+OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY") 
 
 UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "profile_pics")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)

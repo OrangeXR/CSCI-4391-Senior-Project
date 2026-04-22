@@ -1,0 +1,73 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+/* Base layout styling can go here if needed */
+body {
+	font-family: 'Andale Mono', 'Courier New', monospace;
+}
+
+
+/* ==========================
+   Profile pic 
+   ========================== */
+
+.profile-pic{
+	display: flex;
+    justify-content: center;
+    gap: clamp(10px, 6vw, 40px);
+    flex-wrap: wrap;
+    align-items: flex-start;
+    height:150px;
+    width:150px;
+	border-radius: 50%;
+    animation:
+      bounce 300ms 
+      alternate infinite
+      cubic-bezier(.2, .65, .6, 1);
+}
+
+
+/* ==========================
+   Animation for user pic 
+   ========================== */
+@keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+@keyframes bounce {
+    from {
+      transform: translateY(0px);
+    }
+    to {
+      transform: translateY(-20px);
+    }
+  }
+  
+/* ==========================
+   Layout container
+========================== */
+
+.body {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+
+  /* ==========================
+   Buttons and Links
+   ========================== */
+.body .text {
+    font-family: 'Andale Mono', 'Courier New', monospace;
+    display: inline-block;
+    text-align: center;
+    padding: 12px 20px;
+    margin: 10px auto;
+    color: chocolate;
+    font-size: 1.1rem;
+}

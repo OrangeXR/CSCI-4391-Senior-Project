@@ -1,0 +1,36 @@
+
+
+
+{% extends '0-MainPageSetup.html' %}
+
+{% block head %}
+<title>Login</title>
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='Pictures/favicon.png') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/homestyle.css') }}">
+{% endblock %}
+
+{% block body %}
+
+
+<div class="welcome1">
+    <h1>Binny and Bloom.com</h1>
+    <h2>Login</h2>
+</div>
+
+
+<form method="POST" class="kawaii-login">
+    <label><img src="{{ url_for('static', filename='Pictures/Binny.png') }}" height="30px" class="icon"> Username</label>
+    <input name="username" required>
+
+    <label>Password</label>
+    <input name="password" type="password" required>
+
+    <button type="submit" class="kawaii-btn">Login</button>
+
+    <div class="Register-Button">
+        <div class="CreateLab"><label>Don’t have an account?</label></div>
+        <a href="/register" class="text-register">Create an account</a>
+    </div>
+</form>
+
+{% endblock %}

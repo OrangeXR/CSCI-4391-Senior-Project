@@ -1,0 +1,34 @@
+{% extends '0-MainPageSetup.html' %}
+
+
+<!--
+ {% block head %}
+<title>Binny and Bloom.com</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/homestyle.css') }}">
+{% endblock %}
+-->
+
+{% block body %}
+<div class="welcome1">
+    <h1>Binny and Bloom.com</h1>
+    {% include 'Menu.html' %}
+</div>
+
+<div class="body">
+
+    <!-- Profile Picture -->
+    {% if current_player.profile_picture %}
+    <center>
+        <img src="{{ url_for('static', filename='profile_pics/' ~ current_player.profile_picture) }}" alt="Profile Picture" class="profile-pic">
+    </center>
+    {% endif %}
+    <!--------------------->
+
+    <p class="text">Player: <strong>{{ current_player.name }}</strong></p>
+    <p class="text">Score: <strong>{{ current_player.score }}</strong></p>
+
+</div>
+
+
+{% endblock %}
+

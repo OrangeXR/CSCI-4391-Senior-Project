@@ -200,34 +200,35 @@ The Krusty Compost Crew<br />
 
 
 
-
-# Edits for RENDER.COM
-## app.py
-
-
-
-#========================
-#Create Flask application
-#========================
-app = Flask(__name__)
-app.secret_key = "super-secret-key"
-
-BASE_DIR = app.root_path
-#load_dotenv()  # Load .env file
+<br>
+# Edits for RENDER.COM<br>
+## app.py<br>
 
 
 
-OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY") #============== for render 
-#==========================================
-# Inventory Page (uses logged-in player)
-#==========================================
-@app.route("/inventory",methods=["GET", "POST"])
-@login_required
-def inventory_page():
-    from src.openrouterllm import Ai_Chat   #importing everything from openrouterllm  #<=========== this one line
-    player_id = session["player_id"]
+# ========================<br>
+#Create Flask application<br>
+# ========================<br>
+app = Flask(__name__)<br>
+app.secret_key = "super-secret-key"<br>
+<br>
+BASE_DIR = app.root_path<br>
+#load_dotenv()  # Load .env file<br>
+<br>
+<br>
 
+OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY") #============== for render <br>
+<br>
+# ==========================================<br>
+# Inventory Page (uses logged-in player)<br>
+# ==========================================<br>
+@app.route("/inventory",methods=["GET", "POST"])<br>
+@login_required<br>
+def inventory_page():<br>
+    from src.openrouterllm import Ai_Chat   #importing everything from openrouterllm  #<=========== this one line<br>
+    player_id = session["player_id"]<br>
+<br>
+<br>
 
-
-OpenRouterLLM.py
+OpenRouterLLM.py<br>
 Line27  remove src for Render Site        self.DB_PATH = 'instance/inventory.db'

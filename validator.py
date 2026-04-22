@@ -46,7 +46,7 @@ def ingredients_match(req_name, inv_name):
 
 class recipe_validator:
     def __init__(self):
-        self.DB_PATH = 'src/instance/inventory.db'
+        self.DB_PATH = 'instance/inventory.db'
         self.PLAYER_ID = 1 # for testing
     
     def get_db(self): 

@@ -11,7 +11,7 @@ from validator import recipe_validator   #importing everything from validator
 # open db connection
 # ==================
 def get_db():
-    conn = sqlite3.connect("src/instance/inventory.db")
+    conn = sqlite3.connect("instance/inventory.db")
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -154,7 +154,7 @@ class Ai_Chat:
         # restricted words/topics, chatbot will not responsd
         self.RESTRICTED_WORDS = ["poop"]
         # db path + other variables
-        self.DB_PATH = 'src/instance/inventory.db'
+        self.DB_PATH = 'instance/inventory.db'
         self.PLAYER_ID = player_id #1 # for testing
         self.MAX_HISTORY = 10 # max number of messages to keep in conversation history to prevent growth
     

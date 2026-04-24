@@ -62,7 +62,7 @@ SeniorProject/
 |     ├- database.py
 |     ├- expiry.py
 |     ├- generator.py
-|     ├- main.py
+|     ├- cli.py
 |     ├- models.py
 |     ├- openrouterllm.py
 |     ├- requirements.txt
@@ -78,28 +78,49 @@ SeniorProject/
 
 
 <br /><br />
-Must have Python installed:
+Demo Installation(private key is not shown for obvious reasons):<br>
+<a href="https://www.youtube.com/watch?v=6lxgTZllMpQ">
+ <img src="https://github.com/user-attachments/assets/ce0582c6-419b-4812-88e7-2e99936952f5" width="300">
+</a>
+
+
+
+
 
 For Windows Users:
-- ```python3 -m venv venv```        # create virtual environment
+- ``` apt install python3.13-venv ```      # install the virtual environment module for Python 3.13
+- ``` apt install git ```                  # install Git
+- ```python3 -m venv venv```               # create virtual environment
 - ```git clone https://github.com/nere-var/CSCI4391-project```
 - ```cd CSCI4391-project```
-- ```pip install -r requirements.txt```   # installs all packages listed
+- ```pip install -r requirements.txt```    # installs all packages listed
 
 For Mac/Linux Users:
-- ```python3 -m venv venv```        # create virtual environment
+- ``` apt install python3.13-venv ``` # install the virtual environment module for Python 3.13
+- ``` apt install git ```             # install Git
+- ```python3 -m venv venv```          # create virtual environment
 - ```source venv/bin/activate```      # activate it
 - ```git clone https://github.com/nere-var/CSCI4391-project```
 - ```cd CSCI4391-project```
 - ```pip install -r requirements.txt```   # installs all packages listed
 
 Then:
-- Go to https://openrouter.ai/ to obtain an API key ```sk-or-v1-########################```
+# Create your environment file
+- cp src/.env.example src/.env   # macOS/Linux
+- copy src/.env.example src/.env # Windows
+
+# Then edit .env and paste your OpenRouter API key
+- Go to https://openrouter.ai/ to obtain an API key
 - append the .env file with your key
 
 <br><br><br>
 ## <a name="usage"></a>Usage:<br />
 <center> 
+
+
+
+
+
  
 [Terminal Version](#terminal) | [GUI Version](#gui) 
 
@@ -108,10 +129,10 @@ Then:
  
 ### <a name="terminal"></a>Terminal version:<br>
 
-- ```python3 src/main.py```  # In the Projects root Folder<br>
+- ```python3 src/cli.py```  # In the Projects root Folder<br>
 
 - This will start an instance in your terminal:<br>
-  <img width="579" height="25" alt="image" src="https://github.com/user-attachments/assets/f67a829a-2fd0-4ead-a1e8-c55820537893" />
+
 
 - Select user to login: demo:demo<br>
  <img width="173" height="191" alt="image" src="https://github.com/user-attachments/assets/82f79ed0-3c8d-4931-b0d6-00d93a625637" />
@@ -145,13 +166,12 @@ Then:
 <br />
 
 We have provided a database with a various items with username:password  demo:demo<br>
-<img width="157" height="100" alt="Screenshot 2026-02-27 165230" src="https://github.com/user-attachments/assets/3265c059-7ea6-4848-af09-8919711ae2bf" />
-<img width="157" height="100" alt="image" src="https://github.com/user-attachments/assets/c7c7ba5b-236a-4f09-8675-f7420bdcc37a" /><img width="157" height="100" alt="image" src="https://github.com/user-attachments/assets/d3811057-d9fb-4e2a-b824-afef64dd64c3" /><img width="157" height="100" alt="image" src="https://github.com/user-attachments/assets/6d9c31ae-b3e0-43a1-99a6-e9d6d3cb0f76" /><br>
-
+| <img width="157" height="100" alt="Screenshot 2026-02-27 165230" src="https://github.com/user-attachments/assets/3265c059-7ea6-4848-af09-8919711ae2bf" /> | <img width="157" height="100" alt="image" src="https://github.com/user-attachments/assets/c7c7ba5b-236a-4f09-8675-f7420bdcc37a" /> | <img width="157" height="100" alt="image" src="https://github.com/user-attachments/assets/d3811057-d9fb-4e2a-b824-afef64dd64c3" /> | <img width="157" height="100" alt="image" src="https://github.com/user-attachments/assets/6d9c31ae-b3e0-43a1-99a6-e9d6d3cb0f76" />|
+|---|---|---|---|
 
 The inventory page shows all of the items the current user has available in their inventory and just below that is field to interact with the AI:<br>
-<img width="157" height="100" alt="image" src="https://github.com/user-attachments/assets/7b15ce38-a1af-48b6-b204-36c1303daf3f" /><img width="157" height="100" alt="image" src="https://github.com/user-attachments/assets/d0e147de-0825-4419-a9a2-b7f1c409faf5" /><img width="157" height="100" alt="image" src="https://github.com/user-attachments/assets/95a6cee3-e664-44c3-9c43-6fdef8b9bbe1" /><br>
-
+| <img width="157" height="100" alt="image" src="https://github.com/user-attachments/assets/7b15ce38-a1af-48b6-b204-36c1303daf3f" /> | <img width="157" height="100" alt="image" src="https://github.com/user-attachments/assets/d0e147de-0825-4419-a9a2-b7f1c409faf5" /> | <img width="157" height="100" alt="image" src="https://github.com/user-attachments/assets/95a6cee3-e664-44c3-9c43-6fdef8b9bbe1" />|
+|---|---|---|
 
 
 
@@ -172,25 +192,26 @@ If the ingredients are not available:<br>
 
 
 
-
-
 <br /><br /><br />
 
 
 <br /><br /><br />
 
-## <a name="demo"></a>Demo:<br />
+## <a name="demo"></a>Demos:<br />
+| Milestone 1 | Milestone 2 |
+|---|---|
+| <a href="https://www.youtube.com/watch?v=rEP0uPVVnNU"><img src="https://github.com/user-attachments/assets/f7dc1d94-b13e-4cb9-a184-735868c06c14" width="300" height="200"></a> | <a href="https://www.youtube.com/watch?v=LsMbCGHMmF0"><img src="https://github.com/user-attachments/assets/0f40c306-b720-450a-a8d4-fcf51b4e09f8" width="300" height="200"></a> |
 
-<a ref="https://www.youtube.com/watch?v=rEP0uPVVnNU"><img src="https://github.com/user-attachments/assets/3f10d1dd-e9e8-4d08-8b47-7031dc430126" width="300" height="200"></a>
-
-<a ref="https://www.youtube.com/watch?v=LsMbCGHMmF0"><img src="https://github.com/user-attachments/assets/abe86b95-9ff9-4d0d-9d72-1df5a50b15dd" width="300" height="200"></a>
 
 
 
 <br /><br /><br /><br />
 
-The Krusty Compost Crew<br />
-<a href="https://github.com/OrangeXR" title="Luis M"><img width="50" height="50" alt="profile image" src="https://avatars.githubusercontent.com/u/77978673?s=64&v=4" /></a><a href="https://github.com/picklefarm1234" title="Abigail R"><img width="50" height="50" alt="profile image" src="https://avatars.githubusercontent.com/u/230457100?v=4" /></a><a href="https://github.com/jayv2025" title="Jay V"><img width="50" height="50" alt="profile image" src="https://avatars.githubusercontent.com/u/179060597?v=4" /></a><a href="https://github.com/nere-var" title="Emma "><img width="50" height="50" alt="profile image" src="https://avatars.githubusercontent.com/u/58350011?v=4" /></a><a href="https://github.com/AlexandriaTH" title="Taja H"><img width="50" height="50" alt="profile image" src="https://avatars.githubusercontent.com/u/118304167?v=4" /></a>
+## The Krusty Compost Crew: <br />
+| [<img src="https://avatars.githubusercontent.com/u/230457100?v=4" width="50">](https://github.com/picklefarm1234) | [<img src="https://avatars.githubusercontent.com/u/118304167?v=4" width="50">](https://github.com/AlexandriaTH) | [<img src="https://avatars.githubusercontent.com/u/77978673?s=64&v=4" width="50">](https://github.com/OrangeXR) | [<img src="https://avatars.githubusercontent.com/u/179060597?v=4" width="50">](https://github.com/jayv2025) | [<img src="https://avatars.githubusercontent.com/u/58350011?v=4" width="50">](https://github.com/nere-var) |
+|---|---|---|---|---|
+
+
 
 
 

@@ -55,10 +55,3 @@ def sort_inventory(player_id):# <----  player_id
             fresh.append(item['name'])
 
     return expired, about_to_expire, fresh
-
-# Citations:
-# ---------
-# get_expiry_date() implemented using a Google Gemini prompt as a guideline:
-# "I want to make it simple and have it show in text like a notification on the website for the player"
-# sort_inventory() : "cant i just make a function that sorts expired items and items about to expire and non expired"
-

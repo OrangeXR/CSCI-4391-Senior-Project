@@ -11,12 +11,12 @@ from validator import recipe_validator   #importing everything from validator
 # ================
 
 # For the welcome message: "Welcome! The model is XXX . Type 'quit' to exit."
-model_name = "Google: Gemma 4 26B A4B (free)"
+model_name = "Ling-2.6-flash (free)"
 
 # For the actual AI usage: "inclusionai/ling-2.6-flash:free",
 # ai_model_used = "nvidia/nemotron-nano-9b-v2:free"       # NVIDIA: Nemotron Nano 9B V2 (free)   # Going away ??
-ai_model_used = "google/gemma-4-26b-a4b-it:free"        # Google: Gemma 4 26B A4B (free)       # Going away ??
-# ai_model_used = "inclusionai/ling-2.6-flash:free"         # Ling-2.6-flash (free)                # Going away April 29, 2026
+# ai_model_used = "google/gemma-4-26b-a4b-it:free"        # Google: Gemma 4 26B A4B (free)       # Going away ??
+ai_model_used = "inclusionai/ling-2.6-flash:free"         # Ling-2.6-flash (free)                # Going away April 29, 2026
 # ai_model_used = "arcee-ai/trinity-large-preview:free"   # Trinity Large Preview (free)         # Going away April 22, 2026
 # ================
 

@@ -221,15 +221,13 @@ If the ingredients are not available:<br>
 
 
 
-<br>
-# Edits for RENDER.COM<br>
+
+
+
+# For hosting on render
+
 ## app.py<br>
-
-
-
-# ========================<br>
-#Create Flask application<br>
-# ========================<br>
+<br> 
 app = Flask(__name__)<br>
 app.secret_key = "super-secret-key"<br>
 <br>
@@ -237,12 +235,21 @@ BASE_DIR = app.root_path<br>
 #load_dotenv()  # Load .env file<br>
 <br>
 <br>
-
 OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY") #============== for render <br>
 <br>
-# ==========================================<br>
-# Inventory Page (uses logged-in player)<br>
-# ==========================================<br>
+
+#=============<br>
+#Connect to db<br>
+#=============<br>
+def get_db():<br>
+    conn = sqlite3.connect("instance/inventory.db")<br>
+    conn.row_factory = sqlite3.Row<br>
+    return conn<br>
+<br>
+<br>
+#==========================================<br>
+#Inventory Page (uses logged-in player)<br>
+#==========================================<br>
 @app.route("/inventory",methods=["GET", "POST"])<br>
 @login_required<br>
 def inventory_page():<br>
@@ -251,5 +258,26 @@ def inventory_page():<br>
 <br>
 <br>
 
-OpenRouterLLM.py<br>
-Line27  remove src for Render Site        self.DB_PATH = 'instance/inventory.db'
+## OpenRouterLLM.py<br>
+<br>
+...
+# db path + other variables<br>
+self.DB_PATH = 'instance/inventory.db' # <------------------- remove src/<br>
+self.PLAYER_ID = 1 # for testing<br>
+self.MAX_HISTORY = 10 # max number of messages to keep in conversation history to prevent growth<br>
+...
+<br>
+<br>
+
+## database.py
+
+import os<br>
+import sqlite3<br>
+<br>
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))<br>
+DB_PATH = os.path.join(BASE_DIR, "instance", "inventory.db")<br>
+<br>
+def get_db():<br>
+    conn = sqlite3.connect(DB_PATH)<br>
+    conn.row_factory = sqlite3.Row <br>
+    return conn<br>

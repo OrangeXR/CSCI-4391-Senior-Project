@@ -1,0 +1,10 @@
+.venv/
+.venv
+.env
+.env/
+__pycache__/
+docs/
+.DS_Store
+saved_recipe.json
+
+

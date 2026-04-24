@@ -1,0 +1,23 @@
+{% extends '0-SamplePageSetup.html' %}
+
+
+{% block head %}
+<title>Binny and Bloom.com</title>
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='Pictures/favicon.png') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/homestyle.css') }}">
+{% endblock %}
+
+
+
+{% block body %}
+<div class="SampleText">
+    <!-- ===== Page Content ====== -->
+    <h1>This is just a sample page</h1>
+    <!-- ========================= -->
+</div>
+
+
+{% endblock %}
+
+
+

@@ -1,0 +1,44 @@
+{% extends '0-MainPageSetup.html' %}
+
+{% block head %}
+<title>Register</title>
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='Pictures/favicon.png') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/homestyle.css') }}">
+{% endblock %}
+
+
+
+{% block body %}
+<div class="welcome1">
+    <h1>Create Account</h1>
+</div>
+
+<form method="POST" enctype="multipart/form-data" class="body">
+    <!----------------------- Name Field -------------------------->
+    <label>Name</label>
+    <input name="name" required>
+    <!----------------------- Username Field -------------------------->
+    <label>Username</label>
+    <input name="username" required>
+    <!----------------------- Password Field -------------------------->
+    <label>Password</label>
+    <input name="password" type="password" required>
+    <!----------------------- Food Allergies Field -------------------------->
+    <label>Food Allergies:</label>
+    <input type="text" name="food_allergies">
+    <!----------------------- Dietary Needs Field -------------------------->
+    <label>Dietary Needs:</label>
+    <input type="text" name="dietary_needs">
+    <!----------------------- Profile Picture Field -------------------------->
+    <label>Profile Picture</label>
+    <input name="profile_picture" type="file">
+    <!----------------------- Submit Form Button -------------------------->
+    <button type="submit" class="text">Register</button>
+
+    
+    <a href="/login" class="Go-back-Tologin">Already have an account? Login</a>
+</form>
+
+
+
+{% endblock %}

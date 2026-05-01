@@ -19,18 +19,17 @@ app.secret_key = "super-secret-key"
 BASE_DIR = app.root_path
 load_dotenv()  # Load .env file
 
-OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY") #============== for render
+
 
 UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "profile_pics")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-
 # =============
 # Connect to db
 # =============
 def get_db():
-    conn = sqlite3.connect("instance/inventory.db")
+    conn = sqlite3.connect("src/instance/inventory.db")
     conn.row_factory = sqlite3.Row
     return conn
 

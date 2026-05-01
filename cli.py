@@ -13,7 +13,7 @@ from validator import recipe_validator   #importing everything from validator
 # For the welcome message: "Welcome! The model is XXX . Type 'quit' to exit."
 model_name = "Ling-2.6-flash (free)"
 # For the actual AI usage: "inclusionai/ling-2.6-flash:free",
-ai_model_used = "inclusionai/ling-2.6-flash:free"
+ai_model_used = "inclusionai/ling-2.6-flash:free" # Going away April 29, 2026
 
 
 # ==================

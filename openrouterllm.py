@@ -20,7 +20,6 @@ ai_model_used = "inclusionai/ling-2.6-flash:free"         # Ling-2.6-flash (free
 # ai_model_used = "arcee-ai/trinity-large-preview:free"   # Trinity Large Preview (free)         # Going away April 22, 2026
 # ================
 
-
 class Ai_Chat: 
     # IMPORTANT
     #  I sent the .env file with the api key  in the chat, but I will not be including it in the code repository for security reasons and github gets whiny about it lol
@@ -39,7 +38,7 @@ class Ai_Chat:
         # restricted words/topics, chatbot will not responsd
         self.RESTRICTED_WORDS = ["poop"]
         # db path + other variables
-        self.DB_PATH = 'instance/inventory.db'
+        self.DB_PATH = 'src/instance/inventory.db'
         self.PLAYER_ID = 1 # for testing
         self.MAX_HISTORY = 10 # max number of messages to keep in conversation history to prevent growth
         self.Cook_WORDS = ["recipe", "cook", "cooking", "make", "prepare", "fry",
@@ -183,7 +182,7 @@ class Ai_Chat:
         # =                      [Welcome message showing the AI model used]                                            =
         # ===============================================================================================================
         #print("Welcome! The model is Trinity Large Preview (free). Type 'quit' to exit.\n")
-        print(f"Welcome! {model_name}. Type 'quit' to exit.\n")
+        print(f"Welcome! The model is {model_name}. Type 'quit' to exit.\n")
         # ===============================================================================================================   
         # this is where the chatbot will be constrained
         messages = [

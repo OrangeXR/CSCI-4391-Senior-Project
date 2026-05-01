@@ -8,8 +8,6 @@ Senior Project - Spring 2026.
 <br /><br />
 
 
-<br /><br />
-
 
 
 ## <a name="install"></a>Installation:<br />
@@ -77,11 +75,7 @@ SeniorProject/
 
 
 
-<br /><br />
-Demo Installation(private key is not shown for obvious reasons):<br>
-<a href="https://www.youtube.com/watch?v=6lxgTZllMpQ">
- <img src="https://github.com/user-attachments/assets/ce0582c6-419b-4812-88e7-2e99936952f5" width="300">
-</a>
+
 
 
 
@@ -188,20 +182,35 @@ If the ingredients are not available:<br>
 
 
 
-
-
-
-
 <br /><br /><br />
-
-
 <br /><br /><br />
 
 ## <a name="demo"></a>Demos:<br />
-| Milestone 1 | Milestone 2 |
-|---|---|
-| <a href="https://www.youtube.com/watch?v=rEP0uPVVnNU"><img src="https://github.com/user-attachments/assets/f7dc1d94-b13e-4cb9-a184-735868c06c14" width="300" height="200"></a> | <a href="https://www.youtube.com/watch?v=LsMbCGHMmF0"><img src="https://github.com/user-attachments/assets/0f40c306-b720-450a-a8d4-fcf51b4e09f8" width="300" height="200"></a> |
+| Milestone 1 | Milestone 2 | Dry Run 1 | Dry Run 2 | Dry Run 2 - Video Capture |
+|---|---|---|---|---|
+| <a href="https://www.youtube.com/watch?v=rEP0uPVVnNU"><img src="https://github.com/user-attachments/assets/e90d090b-1b35-484e-860d-6425029413d6" width="300"></a> | <a href="https://www.youtube.com/watch?v=LsMbCGHMmF0"><img src="https://github.com/user-attachments/assets/2e07bb9c-a9e5-4301-b237-0ad46380d198" width="300"></a> | <a href="https://www.youtube.com/watch?v=2m3urxbWoBw"><img src="https://github.com/user-attachments/assets/0d49fcc2-ff06-4719-a18a-fa956b13b94f" width="300"></a>| <a href="https://www.youtube.com/watch?v=2hLODnwbJ2s"><img src="https://github.com/user-attachments/assets/dcff76a6-2d3f-4986-8374-311743b385e5" width="300"></a> | <a href="https://www.youtube.com/watch?v=Vb87FnBxCL4"><img src="https://github.com/user-attachments/assets/3e76e396-21ca-447d-ad09-e79979028ed1" width="300"></a> |
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<br /><br /><br />
+
+
+## <a name="demo"></a>Other Videos:<br />
+| Installation Video | Demonstation Backup | Final Presentation |
+|---|---|---|
+| <a href="https://www.youtube.com/watch?v=6lxgTZllMpQ"><img src="https://github.com/user-attachments/assets/ce0582c6-419b-4812-88e7-2e99936952f5" width="300"></a> |  <a href="https://www.youtube.com/watch?v=ez2_7s_7lyI"><img src="https://github.com/user-attachments/assets/8f091700-ef8b-4902-b49a-836695e1f080" width="300"></a> |  <a href="https://www.youtube.com/watch?v=XjjlXml9yB8"> <img src="https://github.com/user-attachments/assets/5d730b53-17a2-40c0-8b21-aa9e890295d0" width="300"></a>  |
 
 
 
@@ -210,6 +219,8 @@ If the ingredients are not available:<br>
 ## The Krusty Compost Crew: <br />
 | [<img src="https://avatars.githubusercontent.com/u/230457100?v=4" width="50">](https://github.com/picklefarm1234) | [<img src="https://avatars.githubusercontent.com/u/118304167?v=4" width="50">](https://github.com/AlexandriaTH) | [<img src="https://avatars.githubusercontent.com/u/77978673?s=64&v=4" width="50">](https://github.com/OrangeXR) | [<img src="https://avatars.githubusercontent.com/u/179060597?v=4" width="50">](https://github.com/jayv2025) | [<img src="https://avatars.githubusercontent.com/u/58350011?v=4" width="50">](https://github.com/nere-var) |
 |---|---|---|---|---|
+
+
 
 
 

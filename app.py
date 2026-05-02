@@ -16,9 +16,12 @@ import json
 app = Flask(__name__)
 app.secret_key = "super-secret-key"
 
-BASE_DIR = app.root_path
-load_dotenv()  # Load .env file
+#BASE_DIR = app.root_path
+#load_dotenv()  # Load .env file
 
+import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "instance", "inventory.db")
 
 
 UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "profile_pics")
@@ -29,9 +32,9 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 # Connect to db
 # =============
 def get_db():
-    conn = sqlite3.connect("src/instance/inventory.db")
-    conn.row_factory = sqlite3.Row
-    return conn
+    db = sqlite3.connect(DB_PATH)
+    db.row_factory = sqlite3.Row
+    return db
 
 # sustanability tier helper
 def get_sustainability_tier(efficiency):

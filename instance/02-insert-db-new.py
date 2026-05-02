@@ -4,7 +4,7 @@ import sqlite3
 # It was helpful at the start of the site/app
 # but is no longer needed
 
-conn = sqlite3.connect("src/instance/inventory.db") # <-----  if database or tables are not found on your system check this line first
+conn = sqlite3.connect("instance/inventory.db") # <-----  if database or tables are not found on your system check this line first
 cursor = conn.cursor()
 
 # ===============

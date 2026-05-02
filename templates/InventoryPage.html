@@ -85,7 +85,7 @@
         <h4>
             <i class = "head-comment-top">Binny Chat Window</i>
             <!-- <h3>
-                <img src="{{ url_for('static', filename='Pictures/chef.png') }}" alt="chefbinny" class="binnychef">
+                <img src="{{ url_for('static', filename='images/chef.png') }}" alt="chefbinny" class="binnychef">
             </h3> -->
         </h4>
         <span class= "close-btn" onclick= "closeChatWindow()">✖</span>
@@ -101,7 +101,7 @@
             {# ---- Avatar header ---- #}
 
             <h3>
-                <img src="{{ url_for('static', filename='Pictures/chef.png') }}" alt="chefbinny" class="binnychef">Ask Binny
+                <img src="{{ url_for('static', filename='images/chef.png') }}" alt="chefbinny" class="binnychef">Ask Binny
             </h3>
             {# ---- AI Response block ---- #}
             {% if Response %}
@@ -352,7 +352,7 @@ document.addEventListener("DOMContentLoaded", function () {
      =========================================== -->
 
      <div id = "loading-box">
-        <img id= "loading-image" src="{{ url_for('static', filename='Pictures/btv-loading.gif')}}" alt= "Loading Recipe ...">
+        <img id= "loading-image" src="{{ url_for('static', filename='images/btv-loading.gif')}}" alt= "Loading Recipe ...">
         <h3 class="loading-text">Loading Recipe...</h3>
         <span class="loader"></span>
     </div>

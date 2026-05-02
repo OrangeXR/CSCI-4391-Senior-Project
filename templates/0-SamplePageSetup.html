@@ -6,7 +6,7 @@
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/mainstyle.css') }}">
 
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='Pictures/favicon.png') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
@@ -27,7 +27,7 @@
 <script>
 document.addEventListener("mousemove", function (e) {
     const trail = document.createElement("img");
-    trail.src = "{{ url_for('static', filename='Pictures/trail.png') }}";
+    trail.src = "{{ url_for('static', filename='images/trail.png') }}";
     trail.className = "trail";
     trail.style.left = e.pageX + "px";
     trail.style.top = e.pageY + "px";

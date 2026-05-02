@@ -5,7 +5,7 @@
 
 {% block head %}
 <title>Login</title>
-<link rel="icon" type="image/png" href="{{ url_for('static', filename='Pictures/favicon.png') }}">
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/homestyle.css') }}">
 {% endblock %}
 
@@ -19,7 +19,7 @@
 
 
 <form method="POST" class="kawaii-login">
-    <label><img src="{{ url_for('static', filename='Pictures/Binny.png') }}" height="30px" class="icon"> Username</label>
+    <label><img src="{{ url_for('static', filename='images/Binny.png') }}" height="30px" class="icon"> Username</label>
     <input name="username" required>
 
     <label>Password</label>
